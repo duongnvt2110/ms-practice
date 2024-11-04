@@ -4,6 +4,8 @@ go 1.22.2
 
 require (
 	github.com/davecgh/go-spew v1.1.1
+	github.com/joho/godotenv v1.5.1
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo/v4 v4.12.0
 	golang.org/x/oauth2 v0.23.0
 )
