@@ -1,2 +1,2 @@
 secret/*
-auth-service/build/.local.env
+/auth-service/build/.local.env
