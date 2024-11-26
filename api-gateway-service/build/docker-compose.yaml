@@ -1,0 +1,59 @@
+services:
+  api-gateway-service:
+    image: api-gateway-service:latest
+    env_file:
+      - ../build/.local.env
+    build:
+      context: ./..
+      dockerfile: build/Dockerfile
+      # platforms:
+      #   - linux/amd64
+    ports:
+      - "3001:3000"
+      - "3002:8090"
+    volumes:
+      - ..:/app:delegated
+  webA-1:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web A 1!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+  webA-2:
+    image: nginx:latest
+    ports:
+      - "8082:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web A 2!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+  webA-3:
+    image: nginx:latest
+    ports:
+      - "8083:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web A 3!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+  webB-1:
+    image: nginx:latest
+    ports:
+      - "8084:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web B 1!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+  webB-2:
+    image: nginx:latest
+    ports:
+      - "8085:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web B 2!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+  webB-3:
+    image: nginx:latest
+    ports:
+      - "8086:80"
+    command: >
+      sh -c "echo '<h1>Welcome to My Custom Nginx Server Web B 3!</h1>' > /usr/share/nginx/html/index.html &&
+             nginx -g 'daemon off;'"
+# volumes:
+#   app:
