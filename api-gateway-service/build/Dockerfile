@@ -1,5 +1,5 @@
 
-FROM golang:1.23-alpine
+FROM golang:1.21.1-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,8 @@ RUN set -x && apk update && \
     rm -rf /var/lib/apt/lists/*
 
 # Hot Reload
-RUN go install github.com/air-verse/air@latest
+# RUN go install github.com/air-verse/air@latest
+RUN go install -v github.com/cosmtrek/air@v1.49.0
 
 COPY go.* ./
 RUN go mod download

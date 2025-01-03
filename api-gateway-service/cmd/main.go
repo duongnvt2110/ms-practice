@@ -3,6 +3,7 @@ package main
 import (
 	"net/url"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -11,6 +12,7 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.Recover())
 	e.Use(middleware.Logger())
+	spew.Dump("vcv")
 
 	// Set up multiple proxy targets for /api/v1
 	apiV1Targets := []*middleware.ProxyTarget{

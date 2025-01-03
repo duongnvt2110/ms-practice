@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+
+option go_package = "api-gateway-service/proto/api_gateway";
+
+package api_gateway;
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+// The greeting service definition
+service WebA {
+  // Sends a greeting
+  rpc Proxy(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/v1/hello_a"
+    };
+  }
+}
+
+service WebB {
+  // Sends a greeting
+  rpc Proxy(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get: "/v1/hello_b"
+    };
+  }
+}

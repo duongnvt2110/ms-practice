@@ -1,0 +1,16 @@
+services:
+  user-service:
+    image: user-service:latest
+    env_file:
+      - ../build/.local.env
+    build:
+      context: ./..
+      dockerfile: build/Dockerfile
+      # platforms:
+      #   - linux/amd64
+    ports:
+      - "3004:3000"
+    volumes:
+      - ..:/app
+# volumes:
+#   app:

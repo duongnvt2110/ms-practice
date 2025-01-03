@@ -1,21 +1,37 @@
 # Architecture 
-## Ticketing System
+## Booking Ticket System
+https://systemdesignschool.io/problems/ticketmaster/solution
 ## Requirements 
-- The users can view the remaining tickets and make an booking for this ticket. 
-- The users must be payment to make an successful booking.
-- The information of users should be store
-- The Admin or manager can create ticket with vary categories as (movie,music,...)
-- 
+### Functional Requirements
+- Users can search for and book resources such as (concert, sports,....)
+- Availability is updated in real-time.
+- Payments are processed securely.
+- Notifications are sent promptly.
+### Non-Functional Requirements
 
 # Services 
-| No. | Service Name      | Directory Name     | Host      | Port | Description |
-| --- | ----------------- | ------------------ | --------- | ---- | ----------- |
-| 1   | API Gateway       | api-gatewa-service | localhost | 8000 |             |
-| 2   | Ticketing Service | ticketing-service  | localhost | 8001 |             |
-| 3   | Payment Service   | payment-serivce    | localhost | 8002 |             |
-| 4   | Booking Service   | order-service      | localhost | 8003 |             |
-| 5   | Customer Service  | customer-serivce   | localhost | 8004 |             |
-| 6   | Web               | web                | localhost | 8888 |             |
+## List
+| No. | Service Name    | Directory Name     | Host      | Port | Description |
+| --- | --------------- | ------------------ | --------- | ---- | ----------- |
+| 1   | API Gateway     | api-gatewa-service | localhost | 8000 |             |
+| 2   | Ticket Service  | ticket-service     | localhost | 8001 |             |
+| 3   | Payment Service | payment-serivce    | localhost | 8002 |             |
+| 4   | Booking Service | order-service      | localhost | 8003 |             |
+| 5   | User Service    | user-serivce       | localhost | 8004 |             |
+| 6   | Noti Service    | Noti-serivce       | localhost | 8005 |             |
+| 8   | Auth Service    | Noti-serivce       | localhost | 8005 |             |
+| 9   | Web             | web                | localhost | 8888 |             |
+## Detail
+### API Gateway
+#### Techstack: 
+- Golang, Echo framework
+### User Service
+#### Techstack: 
+- Golang, Mux golang
+### Auth Service 
+#### Techstack: 
+- Golang, Gin framework
+
 
 # CDC Service
 - Considering ...
@@ -25,3 +41,30 @@
 | Topic Name | Message Type | Producer | Consumer | Description |
 | ---------- | ------------ | -------- | -------- | ----------- |
 |            |              |          |          |             |
+
+# Data Models 
+### User
+  - id
+  - username 
+  - encrypted_password
+  - email
+### Booking
+  - id 
+  - user_id 
+  - name
+  - date
+  - ticket_id
+### Ticket
+  - id 
+  - name
+  - type 
+  - price
+  - tax
+### Payment
+  - id
+  - user_id
+  - booking_id
+### Noti 
+
+
+# 
