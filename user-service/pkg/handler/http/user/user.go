@@ -1,10 +1,9 @@
 package user
 
 import (
-	"encoding/json"
 	"net/http"
+	"user-service/pkg/utils/response"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
 )
 
@@ -22,13 +21,7 @@ func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
 			Name: "Test3",
 		},
 	}
-	spew.Dump("ttest12312312")
-	jsonData, err := json.Marshal(user)
-	if err != nil {
-		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		return
-	}
-	w.Write(jsonData)
+	response.ResponseWithSuccess(w, user)
 
 }
 
@@ -44,11 +37,5 @@ func (h *userHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		ID:   id,
 		Name: "Test",
 	}
-	spew.Dump("ttest12312312")
-	jsonData, err := json.Marshal(user)
-	if err != nil {
-		http.Error(w, "Failed to encode JSON", http.StatusInternalServerError)
-		return
-	}
-	w.Write(jsonData)
+	response.ResponseWithSuccess(w, user)
 }

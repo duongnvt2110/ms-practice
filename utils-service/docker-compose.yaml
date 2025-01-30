@@ -1,0 +1,11 @@
+services:
+  kafka:
+    image: apache/kafka:3.9.0
+      # platforms:
+      #   - linux/amd64
+    ports:
+      - "9092:9092"
+    volumes:
+      - ..:/app
+# volumes:
+#   app:

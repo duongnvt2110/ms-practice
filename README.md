@@ -41,6 +41,9 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | Topic Name | Message Type | Producer | Consumer | Description |
 | ---------- | ------------ | -------- | -------- | ----------- |
 |            |              |          |          |             |
+### Usecases 
+#### CLI for creating and deleting topic 
+#### Format payload mesage
 
 # Data Models 
 ### User
