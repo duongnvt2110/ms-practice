@@ -9,53 +9,76 @@ import (
 	"os/signal"
 	"time"
 
+	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func StartHTTPServer(c *container.Container) {
 	e := echo.New()
-	// s := http.Server{
-	// 	Addr:    ":3000",
-	// 	Handler: e,
-	// }
-	// errs := make(chan error)
 	setRoutes(e, c.Cfg)
-	// setMiddleware(e)
-	// gracefullShutdown(e)
-	// go func() {
-	e.Logger.Fatal(e.Start(":3000"))
-	// e.Logger.Info("Server is running on http://%s", c.Cfg.App.Host)
-	// err := e.ListenAndServe()
-	// errs <- err
-	// if err != nil && err != http.ErrServerClosed {
-	// 	e.Logger.Fatal("shutting down the server")
-	// }
-	// }()
-	// e.Logger.Info("exit", <-errs)
-
+	initialMiddleware(e)
+	runHttpServer(e, c.Cfg)
 }
 
 func setRoutes(e *echo.Echo, cfg *config.Config) {
+	// Version
+	apiV1 := e.Group("/v1")
+
+	//
+
+	// Auth Handler
 	authHandler := auth.NewAuthHandler(cfg)
-	e.GET("/auth/google/login", authHandler.OauthGoogleLogin)
-	e.GET("/auth/google/callback", authHandler.OauthGoogleCallback).Name = "oauth.calback"
+
+	// Token Routes
+	tAuth := apiV1.Group("token")
+	tAuth.POST("/register", authHandler.Register)
+	tAuth.POST("/login", authHandler.Login)
+	tAuth.POST("/logout", authHandler.Logout)
+
+	// SSO Routes
+	gAuth := apiV1.Group("/auth/google")
+	gAuth.GET("/login", authHandler.OauthGoogleLogin)
+	gAuth.GET("/callback", authHandler.OauthGoogleCallback).Name = "oauth.callback"
 }
 
-func setMiddleware(e *echo.Echo) {
-	// e.Use(middleware.Logger())
+func initialMiddleware(e *echo.Echo) {
+	e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
 }
 
-func gracefullShutdown(e *echo.Echo) {
+func authMiddleware(e *echo.Echo) echo.MiddlewareFunc {
+	return echojwt.WithConfig(echojwt.Config{
+		// ...
+		SigningKey: []byte("secret"),
+		// ...
+	})
+}
+
+func runHttpServer(e *echo.Echo, cfg *config.Config) {
+	//Listen graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	<-ctx.Done()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	err := e.Shutdown(ctx)
-	if err != nil {
-		e.Logger.Fatal("Server shutdown failed:", err)
+	// Start http server
+	errCh := make(chan error)
+	go func() {
+		errCh <- e.Start(":" + cfg.App.Port)
+	}()
+
+	// Handle channel Err by Server and Graceful Shutdown
+	select {
+	case <-ctx.Done():
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		err := e.Shutdown(ctx)
+		if err != nil {
+			log.Fatal("Server shutdown failed:", err)
+		}
+		log.Info("Server exited gracefully")
+	case err := <-errCh:
+		log.Info("Server shutdown by", err)
 	}
-	e.Logger.Info("Server exited gracefully")
+
 }

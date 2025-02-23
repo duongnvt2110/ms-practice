@@ -17,5 +17,4 @@ RUN go mod download
 # Copy local code to the container image.
 COPY . ./
 
-
 CMD ["air", "-c", ".air.toml"]

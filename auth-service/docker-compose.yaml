@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: build/Dockerfile
     ports:
-      - 3001:3000
+      - 3366:3306
     env_file:
       - ./build/.local.env
     volumes:
