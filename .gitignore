@@ -2,3 +2,4 @@ secret/*
 /auth-service/build/.local.env
 database/*
 /auth-service/build/db
+/db
