@@ -2,8 +2,9 @@ package config
 
 import (
 	"log"
-	sharedCfg "pkg/config"
 	"sync"
+
+	sharedCfg "pkg/config"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
@@ -16,8 +17,6 @@ var (
 
 type Config struct {
 	sharedCfg.App
-	sharedCfg.Google
-	sharedCfg.Mysql
 }
 
 func NewConfig() *Config {

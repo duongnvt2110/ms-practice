@@ -17,7 +17,7 @@ import (
 )
 
 // Public
-func (h *authHandler) OauthGoogleLogin(c echo.Context) error {
+func (h *AuthHandler) OauthGoogleLogin(c echo.Context) error {
 	// Create oauthState cookie
 	oauthState := h.generateStateOauthCookie(c)
 	oauthCfg := h.getOauthConfig(c.Scheme(), c.Echo().Reverse("oauth.callback"))
@@ -25,7 +25,7 @@ func (h *authHandler) OauthGoogleLogin(c echo.Context) error {
 	return c.Redirect(http.StatusTemporaryRedirect, u)
 }
 
-func (h *authHandler) OauthGoogleCallback(c echo.Context) error {
+func (h *AuthHandler) OauthGoogleCallback(c echo.Context) error {
 	oauthState, _ := c.Cookie("oauthstate")
 	if c.FormValue("state") != oauthState.Value {
 		log.Println("invalid oauth google state")
@@ -45,14 +45,14 @@ func (h *authHandler) OauthGoogleCallback(c echo.Context) error {
 	return c.JSON(http.StatusOK, data)
 }
 
-func (h *authHandler) TestGracefulShutDown(c echo.Context) error {
+func (h *AuthHandler) TestGracefulShutDown(c echo.Context) error {
 	time.Sleep(10 * time.Second)
 	log.Println("testGracefulShutdown job completed")
 	return c.JSON(http.StatusOK, "OK")
 }
 
 // Private
-func (h *authHandler) generateStateOauthCookie(c echo.Context) string {
+func (h *AuthHandler) generateStateOauthCookie(c echo.Context) string {
 	var expiration = time.Now().Add(365 * 24 * time.Hour)
 
 	b := make([]byte, 16)
@@ -64,7 +64,7 @@ func (h *authHandler) generateStateOauthCookie(c echo.Context) string {
 	return state
 }
 
-func (h *authHandler) getOauth2Token(oauthCfg *oauth2.Config, code string) (*oauth2.Token, error) {
+func (h *AuthHandler) getOauth2Token(oauthCfg *oauth2.Config, code string) (*oauth2.Token, error) {
 	// Use code to get token and get user info from Google.
 
 	token, err := oauthCfg.Exchange(context.Background(), code)
@@ -74,7 +74,7 @@ func (h *authHandler) getOauth2Token(oauthCfg *oauth2.Config, code string) (*oau
 	return token, nil
 }
 
-func (h *authHandler) getUserDataFromGoogle(oauthCfg *oauth2.Config, code string) ([]byte, error) {
+func (h *AuthHandler) getUserDataFromGoogle(oauthCfg *oauth2.Config, code string) ([]byte, error) {
 	// Use code to get token and get user info from Google.
 
 	token, err := oauthCfg.Exchange(context.Background(), code)
@@ -93,7 +93,7 @@ func (h *authHandler) getUserDataFromGoogle(oauthCfg *oauth2.Config, code string
 	return contents, nil
 }
 
-func (h *authHandler) getOauthConfig(scheme string, path string) *oauth2.Config {
+func (h *AuthHandler) getOauthConfig(scheme string, path string) *oauth2.Config {
 	reUrl := url.URL{
 		Scheme: scheme,
 		Host:   fmt.Sprintf("%s:%s", h.cfg.App.Host, h.cfg.App.Port),

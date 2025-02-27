@@ -1,0 +1,25 @@
+services:
+  auth-service:
+    build:
+      context: ../../
+      dockerfile: auth-service/build/Dockerfile
+    ports:
+      - 8001:3000
+    env_file:
+      - .local.env
+    volumes:
+      - .:/app/auth-service
+      - ../pkg:/app/pkg
+  auth-service-db:
+    image: mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: auth_service
+    ports:
+      - "3366:3306"
+    volumes:
+      - ./build/db:/var/lib/mysql

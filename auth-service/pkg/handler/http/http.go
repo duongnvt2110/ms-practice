@@ -17,19 +17,19 @@ import (
 
 func StartHTTPServer(c *container.Container) {
 	e := echo.New()
-	setRoutes(e, c.Cfg)
+	setRoutes(e, c)
 	initialMiddleware(e)
 	runHttpServer(e, c.Cfg)
 }
 
-func setRoutes(e *echo.Echo, cfg *config.Config) {
+func setRoutes(e *echo.Echo, c *container.Container) {
 	// Version
 	apiV1 := e.Group("/v1")
 
 	//
 
 	// Auth Handler
-	authHandler := auth.NewAuthHandler(cfg)
+	authHandler := auth.NewAuthHandler(c.Cfg, c.Usecase)
 
 	// Token Routes
 	tAuth := apiV1.Group("token")

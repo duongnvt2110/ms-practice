@@ -1,0 +1,11 @@
+-- migrate:up
+CREATE TABLE auth_profiles (
+  id          INT AUTO_INCREMENT PRIMARY KEY,
+  email       VARCHAR(255) NOT NULL UNIQUE,
+  password    TEXT NOT NULL,
+  created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- migrate:down
+DROP TABLE IF EXISTS auth_profiles;

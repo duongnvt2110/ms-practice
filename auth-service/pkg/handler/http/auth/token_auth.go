@@ -2,52 +2,80 @@ package auth
 
 import (
 	"auth-service/pkg/handler/http/auth/dto"
+	"auth-service/pkg/models"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 )
 
-func (h *authHandler) Register(c echo.Context) error {
-	regBody := dto.RegisterRequestForm{}
-	err := c.Bind(&regBody)
-	if err != nil {
+// Register endpoint
+func (h *AuthHandler) Register(c echo.Context) error {
+	ctx := c.Request().Context()
+	req := new(dto.RegisterRequestForm)
+	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Validate
-	err = c.Validate(regBody)
-	if err != nil {
+	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err)
 	}
 
-	// Handing Bussines Login
+	// Call Usecase
+	authProfileInfo := &models.AuthProfile{
+		Password: req.Password,
+		Email:    req.Email,
+	}
 
-	// Create oauthState cookie
+	userInfo := &models.User{
+		Birthday:  req.BirthDay,
+		FirstName: req.FirstName,
+		LastName:  req.LastName,
+	}
+
+	err := h.authProfileUC.Register(ctx, authProfileInfo, userInfo)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, nil)
 }
 
-func (h *authHandler) Login(c echo.Context) error {
-	loginBody := dto.LoginRequestForm{}
-	err := c.Bind(&loginBody)
-	if err != nil {
+// Login endpoint
+func (h *AuthHandler) Login(c echo.Context) error {
+	ctx := c.Request().Context()
+	req := new(dto.LoginRequestForm)
+	if err := c.Bind(req); err != nil {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
 	// Validate
-	err = c.Validate(loginBody)
-	if err != nil {
+	if err := c.Validate(req); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, err)
 	}
 
-	// Handing Bussines Login
+	// Call Usecase
+	token, err := h.authProfileUC.Login(ctx, req.Email, req.Password)
+	if err != nil {
+		return c.JSON(http.StatusUnauthorized, err.Error())
+	}
 
-	// Create oauthState cookie
-	return c.JSON(http.StatusOK, nil)
+	return c.JSON(http.StatusOK, token)
 }
 
-func (h *authHandler) Logout(c echo.Context) error {
-	// Handing Bussines Login
+// Logout endpoint
+func (h *AuthHandler) Logout(c echo.Context) error {
+	ctx := c.Request().Context()
+	token := c.Request().Header.Get("Authorization")
+	if token == "" {
+		return c.JSON(http.StatusBadRequest, "token required")
+	}
 
-	// Create oauthState cookie
-	return c.JSON(http.StatusOK, nil)
+	// Call Usecase
+	err := h.authProfileUC.Logout(ctx, token)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "logout successful")
 }
