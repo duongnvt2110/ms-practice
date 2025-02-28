@@ -1,5 +1,5 @@
 
-FROM golang:1.23.4-alpine
+FROM golang:1.23-alpine
 
 WORKDIR /app
 
@@ -11,12 +11,15 @@ RUN set -x && apk update && \
 # Hot Reload
 RUN go install github.com/air-verse/air@latest
 
-COPY go.* ./
+# Copy local code to the container image.
+COPY go.mod go.sum ./
+
+# Download dependencies
 RUN go mod download
 
-# Copy local code to the container image.
 COPY . ./
 
-EXPOSE 3000
+# Set working directory to build
+WORKDIR /app/user-service
 
 CMD ["air", "-c", ".air.toml"]

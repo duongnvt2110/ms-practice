@@ -1,16 +1,27 @@
 services:
   user-service:
     image: user-service:latest
-    env_file:
-      - ../build/.local.env
     build:
-      context: ./..
-      dockerfile: build/Dockerfile
+      context: ../../
+      dockerfile: user-service/build/Dockerfile
       # platforms:
       #   - linux/amd64
+    env_file:
+      - .local.env
     ports:
-      - "3004:3000"
+      - "8002:3000"
     volumes:
-      - ..:/app
-# volumes:
-#   app:
+      - ../../:/app
+  user-service-db:
+    image: mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: auth_service
+    ports:
+      - "3366:3306"
+    volumes:
+      - ./db:/var/lib/mysql

@@ -3,3 +3,7 @@ secret/*
 database/*
 /auth-service/build/db
 /db
+
+# user-service
+/user-service/build/.local.env
+/user-service/build/db
