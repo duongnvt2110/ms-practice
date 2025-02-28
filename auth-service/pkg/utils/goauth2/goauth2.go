@@ -1,7 +1,7 @@
 package goauth2
 
 import (
-	"auth-service/pkg/config"
+	"ms-practice/auth-service/pkg/config"
 
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"

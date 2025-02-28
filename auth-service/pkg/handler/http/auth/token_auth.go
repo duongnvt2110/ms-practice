@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"auth-service/pkg/handler/http/auth/dto"
-	"auth-service/pkg/models"
 	"net/http"
+
+	"ms-practice/auth-service/pkg/handler/http/auth/dto"
+	"ms-practice/auth-service/pkg/models"
 
 	"github.com/labstack/echo/v4"
 )
@@ -13,12 +14,12 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := new(dto.RegisterRequestForm)
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	// Validate
-	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err)
+	if err := h.validate.Struct(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	// Call Usecase
@@ -46,12 +47,12 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := new(dto.LoginRequestForm)
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, err)
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	// Validate
-	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err)
+	if err := h.validate.Struct(req); err != nil {
+		return c.JSON(http.StatusUnprocessableEntity,err.Error())
 	}
 
 	// Call Usecase

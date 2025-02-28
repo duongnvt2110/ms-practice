@@ -1,9 +1,10 @@
 package repositories
 
 import (
-	"auth-service/pkg/models"
 	"context"
 	"errors"
+
+	"ms-practice/auth-service/pkg/models"
 
 	"gorm.io/gorm"
 )

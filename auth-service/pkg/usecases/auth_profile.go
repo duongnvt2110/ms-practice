@@ -1,14 +1,15 @@
 package usecases
 
 import (
-	"auth-service/pkg/config"
-	"auth-service/pkg/models"
-	"auth-service/pkg/repositories"
 	"context"
 	"errors"
 	"time"
 
-	sharejwt "pkg/jwt"
+	"ms-practice/auth-service/pkg/config"
+	"ms-practice/auth-service/pkg/models"
+	"ms-practice/auth-service/pkg/repositories"
+
+	sharejwt "ms-practice/pkg/jwt"
 
 	"github.com/golang-jwt/jwt/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -22,21 +23,26 @@ type AuthProfileUC interface {
 }
 
 type authProfileUC struct {
-	repo repositories.AuthProfileRepo
-	cfg  *config.Config
+	authRepo repositories.AuthProfileRepo
+	rfRepo   repositories.RefreshTokenRepo
+	cfg      *config.Config
 }
 
 var _ AuthProfileUC = (*authProfileUC)(nil)
 
-func NewAuthProfileUC(repo repositories.AuthProfileRepo, cfg *config.Config) AuthProfileUC {
-	return &authProfileUC{repo: repo, cfg: cfg}
+func NewAuthProfileUC(authRepo repositories.AuthProfileRepo, rfRepo repositories.RefreshTokenRepo, cfg *config.Config) AuthProfileUC {
+	return &authProfileUC{
+		authRepo: authRepo,
+		rfRepo:   rfRepo,
+		cfg:      cfg,
+	}
 }
 
 // Public function
 // Register a new user
 func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.AuthProfile, userInfo *models.User) error {
 	// Check if user already exists
-	existingUser, _ := u.repo.GetByEmail(ctx, authProfileInfo.Email)
+	existingUser, _ := u.authRepo.GetByEmail(ctx, authProfileInfo.Email)
 	if existingUser != nil {
 		return errors.New("user already exists")
 	}
@@ -50,7 +56,7 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 	// Create new user
 	authProfileInfo.Password = string(hashedPassword)
 
-	return u.repo.Create(ctx, authProfileInfo)
+	return u.authRepo.Create(ctx, authProfileInfo)
 
 	// Todo
 	// Grpc call create user in user-service
@@ -59,7 +65,7 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 
 // Login user and return JWT token
 func (u *authProfileUC) Login(ctx context.Context, email, password string) (*models.TokenPair, error) {
-	user, err := u.repo.GetByEmail(ctx, email)
+	user, err := u.authRepo.GetByEmail(ctx, email)
 	if err != nil {
 		return nil, errors.New("invalid email or password")
 	}
@@ -72,6 +78,17 @@ func (u *authProfileUC) Login(ctx context.Context, email, password string) (*mod
 
 	// Generate JWT token
 	token, err := u.generateLoginToken(email)
+	if err != nil {
+		return nil, err
+	}
+
+	// enhance expires_time
+	rf := &models.RefreshToken{
+		UserId: user.Id,
+		Token:  token.RefreshToken,
+		ExpiresAt: time.Now().Add(time.Duration(u.cfg.JWT.RefreshTokenExp) * time.Minute),
+	}
+	err = u.rfRepo.Create(ctx, rf)
 	if err != nil {
 		return nil, err
 	}

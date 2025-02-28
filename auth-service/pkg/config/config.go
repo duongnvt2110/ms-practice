@@ -4,7 +4,7 @@ import (
 	"log"
 	"sync"
 
-	sharedCfg "pkg/config"
+	sharedCfg "ms-practice/pkg/config"
 
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"

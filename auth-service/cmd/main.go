@@ -1,8 +1,9 @@
 package main
 
 import (
-	"auth-service/pkg/container"
-	http_handler "auth-service/pkg/handler/http"
+	http_handler "ms-practice/auth-service/pkg/handler/http"
+
+	"ms-practice/auth-service/pkg/container"
 )
 
 func main() {

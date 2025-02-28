@@ -1,8 +1,8 @@
 package usecases
 
 import (
-	"auth-service/pkg/config"
-	"auth-service/pkg/repositories"
+	"ms-practice/auth-service/pkg/config"
+	"ms-practice/auth-service/pkg/repositories"
 )
 
 type Usecase struct {
@@ -10,6 +10,6 @@ type Usecase struct {
 }
 
 func NewUsecase(repo *repositories.Repository, cfg *config.Config) *Usecase {
-	authProfileUC := NewAuthProfileUC(repo.AuthProfileRepo, cfg)
+	authProfileUC := NewAuthProfileUC(repo.AuthProfileRepo, repo.RefreshTokenRepo, cfg)
 	return &Usecase{AuthProfileUC: authProfileUC}
 }

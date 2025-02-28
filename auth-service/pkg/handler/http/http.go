@@ -1,13 +1,14 @@
 package http_handler
 
 import (
-	"auth-service/pkg/config"
-	"auth-service/pkg/container"
-	"auth-service/pkg/handler/http/auth"
 	"context"
 	"os"
 	"os/signal"
 	"time"
+
+	"ms-practice/auth-service/pkg/config"
+	"ms-practice/auth-service/pkg/container"
+	"ms-practice/auth-service/pkg/handler/http/auth"
 
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
@@ -26,16 +27,13 @@ func setRoutes(e *echo.Echo, c *container.Container) {
 	// Version
 	apiV1 := e.Group("/v1")
 
-	//
-
 	// Auth Handler
-	authHandler := auth.NewAuthHandler(c.Cfg, c.Usecase)
+	authHandler := auth.NewAuthHandler(c.Cfg, c.Validate, c.Usecase)
 
 	// Token Routes
-	tAuth := apiV1.Group("token")
-	tAuth.POST("/register", authHandler.Register)
-	tAuth.POST("/login", authHandler.Login)
-	tAuth.POST("/logout", authHandler.Logout)
+	apiV1.POST("/register", authHandler.Register)
+	apiV1.POST("/login", authHandler.Login)
+	apiV1.POST("/logout", authHandler.Logout)
 
 	// SSO Routes
 	gAuth := apiV1.Group("/auth/google")

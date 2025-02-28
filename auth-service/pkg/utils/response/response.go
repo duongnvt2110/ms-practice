@@ -1,10 +1,11 @@
 package response
 
 import (
-	apperror "auth-service/pkg/utils/app_error"
 	"encoding/json"
 	"fmt"
 	"net/http"
+
+	apperror "ms-practice/auth-service/pkg/utils/app_error"
 )
 
 type APIResponse struct {

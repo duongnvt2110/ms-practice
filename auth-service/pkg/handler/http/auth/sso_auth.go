@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"auth-service/pkg/utils/goauth2"
 	"context"
 	"crypto/rand"
 	"encoding/base64"
@@ -11,6 +10,8 @@ import (
 	"net/http"
 	"net/url"
 	"time"
+
+	"ms-practice/auth-service/pkg/utils/goauth2"
 
 	"github.com/labstack/echo/v4"
 	"golang.org/x/oauth2"

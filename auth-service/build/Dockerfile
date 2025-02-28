@@ -1,7 +1,7 @@
 
 FROM golang:1.23-alpine
 
-WORKDIR /app/auth-service
+WORKDIR /app
 
 RUN set -x && apk update && \
     apk add -y --no-cache \
@@ -11,14 +11,15 @@ RUN set -x && apk update && \
 # Hot Reload
 RUN go install github.com/air-verse/air@latest
 
-# Copy go.work file and modules
-COPY ../pkg ../pkg
-COPY ../auth-service/go.* .
+# Copy local code to the container image.
+COPY go.mod go.sum ./
 
 # Download dependencies
 RUN go mod download
 
-# Copy local code to the container image.
-COPY ../auth-service/. ./
+COPY . ./
+
+# Set working directory to build
+WORKDIR /app/auth-service
 
 CMD ["air", "-c", ".air.toml"]
