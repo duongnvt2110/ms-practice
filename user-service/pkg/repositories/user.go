@@ -9,6 +9,7 @@ import (
 
 type UserRepository interface {
 	GetUserByID(ctx context.Context, id int32) (*models.User, error)
+	CreateUser(ctx context.Context, user *models.User) (int32, error)
 }
 
 type userRepository struct {
@@ -26,4 +27,12 @@ func (r *userRepository) GetUserByID(ctx context.Context, id int32) (*models.Use
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *userRepository) CreateUser(ctx context.Context, user *models.User) (int32, error) {
+	err := r.db.WithContext(ctx).Create(user).Error
+	if err != nil {
+		return 0, err
+	}
+	return user.Id, nil
 }

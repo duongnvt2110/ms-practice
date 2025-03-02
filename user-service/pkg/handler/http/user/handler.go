@@ -1,6 +1,6 @@
 package user
 
-import "user-service/pkg/config"
+import "ms-practice/user-service/pkg/config"
 
 type userHandler struct {
 	cfg *config.Config

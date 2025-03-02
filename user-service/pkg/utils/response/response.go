@@ -3,8 +3,8 @@ package response
 import (
 	"encoding/json"
 	"fmt"
+	apperror "ms-practice/user-service/pkg/utils/app_error"
 	"net/http"
-	apperror "user-service/pkg/utils/app_error"
 )
 
 type APIResponse struct {

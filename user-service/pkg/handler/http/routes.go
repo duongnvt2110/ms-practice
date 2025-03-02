@@ -3,10 +3,10 @@ package http_handler
 import (
 	"encoding/json"
 	"log"
+	"ms-practice/user-service/pkg/config"
+	"ms-practice/user-service/pkg/handler/http/user"
 	"net/http"
 	"time"
-	"user-service/pkg/config"
-	"user-service/pkg/handler/http/user"
 
 	"github.com/gorilla/mux"
 )

@@ -1,15 +1,13 @@
 services:
   user-service:
-    image: user-service:latest
     build:
       context: ../../
       dockerfile: user-service/build/Dockerfile
-      # platforms:
-      #   - linux/amd64
+    ports:
+      - 8002:3000
+      - 50001:50051
     env_file:
       - .local.env
-    ports:
-      - "8002:3000"
     volumes:
       - ../../:/app
   user-service-db:
@@ -20,8 +18,8 @@ services:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_USER: admin
       MYSQL_PASSWORD: admin
-      MYSQL_DATABASE: auth_service
+      MYSQL_DATABASE: user_service
     ports:
-      - "3366:3306"
+      - "3367:3306"
     volumes:
       - ./db:/var/lib/mysql

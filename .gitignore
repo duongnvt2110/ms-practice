@@ -1,8 +1,10 @@
 secret/*
-/auth-service/build/.local.env
 database/*
-/auth-service/build/db
 /db
+
+# auth-service
+/auth-service/build/.local.env
+/auth-service/build/db
 
 # user-service
 /user-service/build/.local.env

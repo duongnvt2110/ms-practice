@@ -3,12 +3,12 @@ package http_handler
 import (
 	"context"
 	"log"
+	"ms-practice/user-service/pkg/container"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
-	"user-service/pkg/container"
 
 	"github.com/gorilla/mux"
 )
@@ -25,8 +25,8 @@ func StartHTTPServer(c *container.Container) {
 	// errs := make(chan error)
 	SetRoutes(h, c.Cfg)
 	// http_middleware.SetMiddleware(h)
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer stop()
+	// ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	// defer stop()
 	go func() {
 		log.Printf("Server is running on http://%s", c.Cfg.App.Host)
 		err := srv.ListenAndServe()
@@ -35,13 +35,15 @@ func StartHTTPServer(c *container.Container) {
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
-	<-ctx.Done()
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal(err)
-	}
+	// go func() {
+	// 	// Wait for interrupt signal to gracefully shut down the server with a timeout of 10 seconds.
+	// 	<-ctx.Done()
+	// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	// 	defer cancel()
+	// 	if err := srv.Shutdown(ctx); err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// }()
 	// gracefullShutdown(srv)
 	// log.Fatal("exit", <-errs)
 }

@@ -1,8 +1,8 @@
 package user
 
 import (
+	"ms-practice/user-service/pkg/utils/response"
 	"net/http"
-	"user-service/pkg/utils/response"
 
 	"github.com/gorilla/mux"
 )

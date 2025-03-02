@@ -242,6 +242,25 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | Topic Name | Message Type | Producer | Consumer | Description |
 | ---------- | ------------ | -------- | -------- | ----------- |
 |            |              |          |          |             |
-### Usecases 
+#### Usecases 
 #### CLI for creating and deleting topic 
 #### Format payload mesage
+# gRPC command 
+## Install 
+### Setup protoc
+```
+https://protobuf.dev/installation/
+```
+### Setup golang binary
+```
+go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+### Command 
+#### 1. user-service 
+```
+protoc --go_out=./proto/gen --go_opt=paths=source_relative \
+    --go-grpc_out=./proto/gen --go-grpc_opt=paths=source_relative \
+    --proto_path=proto \
+    ./proto/user.proto
+```

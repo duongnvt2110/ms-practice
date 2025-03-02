@@ -21,6 +21,7 @@ type Container struct {
 }
 
 func InitializeContainer() *Container {
+	// Initialize dependencies
 	cfg := config.NewConfig()
 	validate := svalidate.NewValidate()
 	dbClient, err := gorm_client.NewGormClient(cfg.Mysql.PrimaryHosts, cfg.Mysql.ReadHosts, cfg.Mysql.User, cfg.Mysql.Password, cfg.Mysql.Port, cfg.Mysql.DBName)
@@ -30,6 +31,7 @@ func InitializeContainer() *Container {
 	}
 	repo := repositories.NewRepository(dbClient)
 	usecase := usecases.NewUsecase(repo, cfg)
+
 	return &Container{
 		Cfg:      cfg,
 		Usecase:  usecase,

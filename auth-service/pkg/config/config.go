@@ -17,6 +17,10 @@ var (
 
 type Config struct {
 	sharedCfg.App
+	GRPC struct {
+		UserHost string `envconfig:"GRPC_HOST" default:"user-service"`
+		UserPort string `envconfig:"GRPC_PORT" default:"50001"`
+	}
 }
 
 func NewConfig() *Config {

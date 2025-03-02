@@ -23,18 +23,20 @@ type AuthProfileUC interface {
 }
 
 type authProfileUC struct {
-	authRepo repositories.AuthProfileRepo
-	rfRepo   repositories.RefreshTokenRepo
-	cfg      *config.Config
+	authRepo       repositories.AuthProfileRepo
+	rfRepo         repositories.RefreshTokenRepo
+	userGrpcClient UserGrpcClient
+	cfg            *config.Config
 }
 
 var _ AuthProfileUC = (*authProfileUC)(nil)
 
-func NewAuthProfileUC(authRepo repositories.AuthProfileRepo, rfRepo repositories.RefreshTokenRepo, cfg *config.Config) AuthProfileUC {
+func NewAuthProfileUC(authRepo repositories.AuthProfileRepo, rfRepo repositories.RefreshTokenRepo, userGrpcClient UserGrpcClient, cfg *config.Config) AuthProfileUC {
 	return &authProfileUC{
-		authRepo: authRepo,
-		rfRepo:   rfRepo,
-		cfg:      cfg,
+		authRepo:       authRepo,
+		rfRepo:         rfRepo,
+		userGrpcClient: userGrpcClient,
+		cfg:            cfg,
 	}
 }
 
@@ -56,11 +58,18 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 	// Create new user
 	authProfileInfo.Password = string(hashedPassword)
 
-	return u.authRepo.Create(ctx, authProfileInfo)
-
+	err = u.authRepo.Create(ctx, authProfileInfo)
+	if err != nil {
+		return err
+	}
 	// Todo
 	// Grpc call create user in user-service
+	_, err = u.userGrpcClient.CreateUser(ctx, userInfo)
+	if err != nil {
+		return err
+	}
 	// Send email
+	return nil
 }
 
 // Login user and return JWT token
@@ -84,8 +93,8 @@ func (u *authProfileUC) Login(ctx context.Context, email, password string) (*mod
 
 	// enhance expires_time
 	rf := &models.RefreshToken{
-		UserId: user.Id,
-		Token:  token.RefreshToken,
+		UserId:    user.Id,
+		Token:     token.RefreshToken,
 		ExpiresAt: time.Now().Add(time.Duration(u.cfg.JWT.RefreshTokenExp) * time.Minute),
 	}
 	err = u.rfRepo.Create(ctx, rf)

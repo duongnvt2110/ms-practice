@@ -8,6 +8,7 @@ import (
 
 type UserUsecase interface {
 	GetUser(ctx context.Context, id int32) (*models.User, error)
+	CreateUser(ctx context.Context, user *models.User) (int32, error)
 }
 
 type userUsecase struct {
@@ -20,4 +21,8 @@ func NewUserUsecase(repo repositories.UserRepository) UserUsecase {
 
 func (u *userUsecase) GetUser(ctx context.Context, id int32) (*models.User, error) {
 	return u.userRepo.GetUserByID(ctx, id)
+}
+
+func (u *userUsecase) CreateUser(ctx context.Context, user *models.User) (int32, error) {
+	return u.userRepo.CreateUser(ctx, user)
 }

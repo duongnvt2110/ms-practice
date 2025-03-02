@@ -6,10 +6,14 @@ import (
 )
 
 type Usecase struct {
-	AuthProfileUC AuthProfileUC
+	AuthProfileUC  AuthProfileUC
+	UserGrpcClient UserGrpcClient
 }
 
 func NewUsecase(repo *repositories.Repository, cfg *config.Config) *Usecase {
-	authProfileUC := NewAuthProfileUC(repo.AuthProfileRepo, repo.RefreshTokenRepo, cfg)
-	return &Usecase{AuthProfileUC: authProfileUC}
+	userGrpcClient := NewUserGrpcClient(cfg)
+	authProfileUC := NewAuthProfileUC(repo.AuthProfileRepo, repo.RefreshTokenRepo, userGrpcClient, cfg)
+	return &Usecase{
+		AuthProfileUC: authProfileUC,
+	}
 }

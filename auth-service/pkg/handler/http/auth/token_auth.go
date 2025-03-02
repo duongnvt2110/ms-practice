@@ -29,9 +29,10 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	}
 
 	userInfo := &models.User{
-		Birthday:  req.BirthDay,
-		FirstName: req.FirstName,
-		LastName:  req.LastName,
+		Birthday:    req.BirthDay,
+		FirstName:   req.FirstName,
+		LastName:    req.LastName,
+		PhoneNumber: req.PhoneNumber,
 	}
 
 	err := h.authProfileUC.Register(ctx, authProfileInfo, userInfo)
@@ -52,7 +53,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 
 	// Validate
 	if err := h.validate.Struct(req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity,err.Error())
+		return c.JSON(http.StatusUnprocessableEntity, err.Error())
 	}
 
 	// Call Usecase

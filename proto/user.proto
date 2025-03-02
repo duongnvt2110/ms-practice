@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package user;
+package gen;
 
-option go_package = "ms-practice/user-service/pkg/pb";
+option go_package = "ms-practice/proto/gen";
 
 message User {
     int32 id = 1;
@@ -21,6 +21,19 @@ message GetUserResponse {
     User user = 1;
 }
 
+message CreateUserRequest {
+    string email = 1;
+    string first_name = 2;
+    string last_name = 3;
+    string birthday = 4;
+    string phone_number = 5;
+}
+
+message CreateUserResponse {
+    int32 id = 1;
+}
+
 service UserService {
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse); // NEW CreateUser RPC
 }
