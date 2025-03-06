@@ -24,12 +24,20 @@ func StartGRPCUserServiceServer(c *container.Container) {
 	grpcServer := grpc.NewServer()
 	gen.RegisterUserServiceServer(grpcServer, userHandler)
 
+	logChannel := make(chan string)
+
 	// Run gRPC in a separate goroutine
 	go func() {
-		fmt.Printf("UserService gRPC Server is running on port %s...", c.Cfg.GRPC.Port)
+		logChannel <- fmt.Sprintf("UserService gRPC Server is running on port %s...", c.Cfg.GRPC.Port)
 		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("Failed to serve: %v", err)
+			logChannel <- fmt.Sprintf("Failed to serve: %v", err)
 			os.Exit(1)
+		}
+	}()
+
+	go func() {
+		for msg := range logChannel {
+			fmt.Println(msg)
 		}
 	}()
 	// gracefullShutdown(srv)

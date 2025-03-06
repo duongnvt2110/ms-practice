@@ -2,6 +2,7 @@ package http_handler
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"ms-practice/user-service/pkg/container"
 	"net/http"
@@ -25,13 +26,21 @@ func StartHTTPServer(c *container.Container) {
 	// errs := make(chan error)
 	SetRoutes(h, c.Cfg)
 	// http_middleware.SetMiddleware(h)
-	// ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
-	// defer stop()
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	logChannel := make(chan string)
+
 	go func() {
-		log.Printf("Server is running on http://%s", c.Cfg.App.Host)
+		logChannel <- fmt.Sprintf("Server is running on http://%s", c.Cfg.App.Host)
 		err := srv.ListenAndServe()
 		if err != nil {
-			log.Fatal(err)
+			logChannel <- err.Error()
+		}
+	}()
+
+	go func() {
+		for msg := range logChannel {
+			fmt.Println(msg)
 		}
 	}()
 
