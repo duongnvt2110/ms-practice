@@ -10,8 +10,8 @@ import (
 )
 
 type Container struct {
-	Cfg    *config.Config
-	UserUc usecases.UserUsecase
+	Cfg     *config.Config
+	Usecase *usecases.Usecase
 }
 
 func InitializeContainer() *Container {
@@ -22,10 +22,10 @@ func InitializeContainer() *Container {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	userRepo := repositories.NewUserRepository(dbClient)
-	userUC := usecases.NewUserUsecase(userRepo)
+	repos := repositories.NewRepository(dbClient)
+	usecases := usecases.NewUsecase(repos, cfg)
 	return &Container{
-		Cfg:    cfg,
-		UserUc: userUC,
+		Cfg:     cfg,
+		Usecase: usecases,
 	}
 }

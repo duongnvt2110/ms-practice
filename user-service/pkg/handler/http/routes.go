@@ -3,7 +3,7 @@ package http_handler
 import (
 	"encoding/json"
 	"log"
-	"ms-practice/user-service/pkg/config"
+	"ms-practice/user-service/pkg/container"
 	"ms-practice/user-service/pkg/handler/http/user"
 	"net/http"
 	"time"
@@ -11,8 +11,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func SetRoutes(r *mux.Router, cfg *config.Config) {
-	userHandler := user.NewUserHandler(cfg)
+func SetRoutes(r *mux.Router, c *container.Container) {
+	userHandler := user.NewUserHandler(c.Cfg, *c.Usecase)
 	r.HandleFunc("/users", userHandler.GetUsers).Methods("GET")
 	r.HandleFunc("/users/{id}", userHandler.GetUser).Methods("GET")
 	r.HandleFunc("/users", userHandler.GetUser).Methods("POST")

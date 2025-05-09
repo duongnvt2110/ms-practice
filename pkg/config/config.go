@@ -2,7 +2,7 @@ package config
 
 type App struct {
 	Host string `envconfig:"APP_HOST" default:"localhost"`
-	Port string `envconfig:"APP_PORT" default:"3000"`
+	Port string `envconfig:"APP_PORT" default:"8002"`
 	Google
 	JWT
 	Mysql
@@ -24,8 +24,8 @@ type Google struct {
 type Mysql struct {
 	PrimaryHosts []string `envconfig:"MYSQL_PRIMARY_HOSTS" default:"localhost"`
 	ReadHosts    []string `envconfig:"MYSQL_READ_HOSTS" default:"localhost"`
-	Port         string   `envconfig:"MYSQL_PORT" default:"3306"`
+	Port         string   `envconfig:"MYSQL_PORT" default:"3367"`
 	User         string   `envconfig:"MYSQL_USER" default:"admin"`
 	Password     string   `envconfig:"MYSQL_PASSWORD" default:"admin"`
-	DBName       string   `envconfig:"MYSQL_DB_NAME" default:"test"`
+	DBName       string   `envconfig:"MYSQL_DB_NAME" default:"user_service"`
 }

@@ -2,7 +2,10 @@ syntax = "proto3";
 
 package gen;
 
+import "google/protobuf/empty.proto";
+
 option go_package = "ms-practice/proto/gen";
+
 
 message User {
     int32 id = 1;
@@ -35,5 +38,6 @@ message CreateUserResponse {
 
 service UserService {
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
-    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse); // NEW CreateUser RPC
+    rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+    rpc TestGracefulShutdown(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

@@ -99,7 +99,7 @@ https://systemdesignschool.io/problems/ticketmaster/solution
   - updated_at
 #### Techstack: 
 - Golang, Mux golang
-### Event Service 
+### Ticket Service 
 #### Goal
 - User Infos
 - User settings
@@ -236,12 +236,42 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 
 # CDC Service
 - Considering ...
+# Saga 
+## Choreography Pattern
+### Useccase
+- A customer places an order in OrderService.
+- OrderService saves the order and emits an OrderPlacedEvent.
+- InventoryService listens for OrderPlacedEvent, and once it catches this event, it checks and reserves the stock. If stock is reserved successfully, it emits a StockReservedEvent.
+- If stock isn't available, it emits a StockUnavailableEvent.
+PaymentService listens for StockReservedEvent. Once it catches this event, it charges the customer.
+- If payment is successful, it emits a PaymentSuccessEvent.
+- If payment fails, it emits a PaymentFailedEvent.
+OrderService listens for PaymentSuccessEvent and PaymentFailedEvent to update the order status accordingly.
+- NotificationService listens to various events to notify the customer at different stages.
+### Event 
+#### OrderService 
+- OrderPending
+- OrderCreated 
+- OrderRejected
+#### TicketService 
+- TicketPending 
+- TicketCreated
+- TicketRejected
+#### PaymentSerivce
+- PaymentPending
+- PaymentCreated 
+- PaymentRejectted
+### NotificationService 
+- NotiPending 
+- NotiCreated
+
+
 # Messeage Queue
 ## Kafka 
 ### Topic 
 | Topic Name | Message Type | Producer | Consumer | Description |
 | ---------- | ------------ | -------- | -------- | ----------- |
-|            |              |          |          |             |
+| OrderEvent |              |          |          |             |
 #### Usecases 
 #### CLI for creating and deleting topic 
 #### Format payload mesage
@@ -263,4 +293,16 @@ protoc --go_out=./proto/gen --go_opt=paths=source_relative \
     --go-grpc_out=./proto/gen --go-grpc_opt=paths=source_relative \
     --proto_path=proto \
     ./proto/user.proto
+```
+
+## Testing 
+#### GRPC
+https://ghz.sh/ 
+Example:
+```
+ghz --insecure \
+  --proto ./proto/user.proto \
+  --call gen.UserService.TestGracefulShutdown \
+  -c 1 -n 1 \
+  0.0.0.0:50001
 ```

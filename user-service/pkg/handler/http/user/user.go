@@ -1,8 +1,10 @@
 package user
 
 import (
+	apperror "ms-practice/user-service/pkg/utils/app_error"
 	"ms-practice/user-service/pkg/utils/response"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -37,5 +39,10 @@ func (h *userHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 		ID:   id,
 		Name: "Test",
 	}
+	userId, err := strconv.Atoi(id)
+	if err != nil {
+		response.ResponseWithError(w, apperror.ErrInternalServer.Origin(err))
+	}
+	h.userUC.GetUser(r.Context(), int32(userId))
 	response.ResponseWithSuccess(w, user)
 }

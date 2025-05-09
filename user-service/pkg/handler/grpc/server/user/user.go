@@ -2,9 +2,13 @@ package user
 
 import (
 	"context"
+	"log"
 	"ms-practice/proto/gen"
 	"ms-practice/user-service/pkg/models"
 	"ms-practice/user-service/pkg/usecases"
+	"time"
+
+	"google.golang.org/protobuf/types/known/emptypb"
 )
 
 type UserHandler struct {
@@ -49,4 +53,10 @@ func (h *UserHandler) CreateUser(ctx context.Context, req *gen.CreateUserRequest
 	}
 
 	return &gen.CreateUserResponse{Id: id}, nil
+}
+
+func (h *UserHandler) TestGracefulShutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {
+	time.Sleep(10 * time.Second)
+	log.Println("testGracefulShutdown job completed")
+	return &emptypb.Empty{}, nil
 }

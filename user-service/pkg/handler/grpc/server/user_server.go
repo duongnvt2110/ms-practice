@@ -1,6 +1,7 @@
 package grpc
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"ms-practice/proto/gen"
@@ -8,18 +9,19 @@ import (
 	"ms-practice/user-service/pkg/handler/grpc/server/user"
 	"net"
 	"os"
+	"time"
 
 	"google.golang.org/grpc"
 )
 
-func StartGRPCUserServiceServer(c *container.Container) {
+func StartGRPCUserServiceServer(c *container.Container, ctx context.Context) {
 	// Start gRPC server
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", c.Cfg.GRPC.Port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	userHandler := user.NewUserHandler(c.UserUc)
+	userHandler := user.NewUserHandler(c.Usecase.UserUC)
 
 	grpcServer := grpc.NewServer()
 	gen.RegisterUserServiceServer(grpcServer, userHandler)
@@ -39,7 +41,20 @@ func StartGRPCUserServiceServer(c *container.Container) {
 		for msg := range logChannel {
 			fmt.Println(msg)
 		}
+		close(logChannel)
 	}()
-	// gracefullShutdown(srv)
-	// log.Fatal("exit", <-errs)
+	<-ctx.Done()
+	gracefullShutdown(grpcServer)
+}
+
+func gracefullShutdown(srv *grpc.Server) {
+	log.Println("Shutting down Grpc server...")
+	// Implement graceful shutdown.
+	timer := time.AfterFunc(10*time.Second, func() {
+		log.Println("Server couldn't stop gracefully in time. Doing force stop.")
+		srv.Stop()
+	})
+	defer timer.Stop()
+	srv.GracefulStop()
+	log.Println("Grpc server exited gracefully")
 }
