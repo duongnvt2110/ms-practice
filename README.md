@@ -17,7 +17,7 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | 2   | Auth Service    | auth-service       | localhost | 8001 |             |
 | 3   | User Service    | user-serivce       | localhost | 8002 |             |
 | 4   | Ticket Service  | ticket-service     | localhost | 8003 |             |
-| 5   | Order Service   | order-serivce      | localhost | 8004 |             |
+| 5   | Booking Service | booking-serivce    | localhost | 8004 |             |
 | 6   | Payment Service | payment-serivce    | localhost | 8005 |             |
 | 8   | Noti Service    | noti-serivce       | localhost | 8005 |             |
 | 9   | FrontEnd        | Frontend           | localhost | 8888 |             |
