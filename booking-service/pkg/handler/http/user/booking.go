@@ -1,7 +1,9 @@
 package user
 
 import (
+	"booking-service/pkg/events"
 	"booking-service/pkg/utils/response"
+	"encoding/json"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -38,42 +40,32 @@ func (h *bookingHandler) GetBooking(c *gin.Context) {
 }
 
 func (h *bookingHandler) CreateBooking(c *gin.Context) {
+	ctx := c.Request.Context()
 	orderCreated := h.createBooking()
 	if orderCreated.OrderID != "" {
+		b, _ := json.Marshal(orderCreated)
+		_ = h.kafka.SetWriterTopic(events.TopicOrderEvents).Publish(ctx, nil, b)
+
 		paymentProcessed := h.processPayment(orderCreated.OrderID, orderCreated.Amount)
 
-		if !paymentProcessed.PaymentDone {
-			// Compensate for the order creation due to payment failure
-			// This could involve canceling the order or marking it as failed
+		if paymentProcessed.Success {
+			b, _ := json.Marshal(paymentProcessed)
+			_ = h.kafka.SetWriterTopic(events.TopicPaymentEvents).Publish(ctx, nil, b)
+		} else {
 			h.compensateOrder(orderCreated.OrderID, "Payment failed")
 		}
 	}
 	// response.ResponseWithSuccess(c, booking)
 }
 
-// Private func
-type OrderCreatedEvent struct {
-	OrderID string
-	Amount  float64
+// Private functions
+
+func (h *bookingHandler) createBooking() events.OrderPlacedEvent {
+	return events.OrderPlacedEvent{OrderID: "1", Amount: 1.0}
 }
 
-type PaymentProcessedEvent struct {
-	OrderID     string
-	PaymentID   string
-	PaymentDone bool
-}
-
-type CompensateOrderEvent struct {
-	OrderID string
-	Reason  string
-}
-
-func (h *bookingHandler) createBooking() OrderCreatedEvent {
-	return OrderCreatedEvent{OrderID: "1", Amount: 1.0}
-}
-
-func (h *bookingHandler) processPayment(orderID string, amount float64) PaymentProcessedEvent {
-	return PaymentProcessedEvent{OrderID: "1", PaymentID: "1", PaymentDone: true}
+func (h *bookingHandler) processPayment(orderID string, amount float64) events.PaymentProcessedEvent {
+	return events.PaymentProcessedEvent{OrderID: "1", PaymentID: "1", Success: true}
 }
 
 func (h *bookingHandler) compensateOrder(orderID string, reason string) {

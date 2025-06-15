@@ -3,12 +3,13 @@ package http_handler
 import (
 	"booking-service/pkg/config"
 	"booking-service/pkg/handler/http/user"
+	"booking-service/pkg/kafka"
 
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes(r *gin.Engine, cfg *config.Config) {
-	bookingHandler := user.NewBookingHandler(cfg)
+func SetRoutes(r *gin.Engine, cfg *config.Config, kafka kafka.KafkaClient) {
+	bookingHandler := user.NewBookingHandler(cfg, kafka)
 	bookingGroup := r.Group("bookings")
 	{
 		bookingGroup.GET("", bookingHandler.GetBookings)

@@ -22,7 +22,7 @@ func StartHTTPServer(c *container.Container) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      h,
 	}
-	SetRoutes(h, c.Cfg)
+	SetRoutes(h, c.Cfg, c.Kafka)
 	// http_middleware.SetMiddleware(h)
 	go func() {
 		log.Printf("Server is running on http://%s", c.Cfg.App.Host)
