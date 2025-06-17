@@ -9,8 +9,21 @@ services:
       # platforms:
       #   - linux/amd64
     ports:
-      - "3005:3000"
+      - "8004:3000"
     volumes:
       - ..:/app
+  booking-service-db:
+    image: mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: booking_service
+    ports:
+      - "3367:3306"
+    volumes:
+      - ./db:/var/lib/mysql
 # volumes:
 #   app:

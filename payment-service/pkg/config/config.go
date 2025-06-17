@@ -15,7 +15,7 @@ var (
 
 type Config struct {
 	Kafka struct {
-		Brokers []string `envconfig:"KAFKA_BROKERS"`
+		Brokers []string `envconfig:"KAFKA_BROKERS" default:"localhost:9092"`
 	}
 }
 

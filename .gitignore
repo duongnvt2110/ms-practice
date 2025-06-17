@@ -9,3 +9,11 @@ database/*
 # user-service
 /user-service/build/.local.env
 /user-service/build/db
+
+# booking-service
+/booking-service/build/.local.env
+/booking-service/build/db
+
+# payment-service
+/payment-service/build/.local.env
+/payment-service/build/db

@@ -26,7 +26,7 @@ type Config struct {
 		OauthGoogleUrlAPI string   `envconfig:"GOOGLE_OAUTH_URL_API" default:"https://www.googleapis.com/oauth2/v2/userinfo?access_token="`
 	}
 	Kafka struct {
-		Brokers []string `envconfig:"KAFKA_BROKERS"`
+		Brokers []string `envconfig:"KAFKA_BROKERS" default:"localhost:9092"`
 	}
 	Text struct {
 	}

@@ -9,7 +9,7 @@ RUN set -x && apk update && \
     rm -rf /var/lib/apt/lists/*
 
 # Hot Reload
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/air-verse/air@v1.52.3
 
 COPY go.* ./
 RUN go mod download
@@ -18,5 +18,7 @@ RUN go mod download
 COPY . ./
 
 EXPOSE 3000
+
+WORKDIR /app/booking-service
 
 CMD ["air", "-c", ".air.toml"]

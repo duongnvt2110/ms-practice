@@ -9,7 +9,7 @@ RUN set -x && apk update && \
     rm -rf /var/lib/apt/lists/*
 
 # Hot Reload
-RUN go install github.com/air-verse/air@latest
+RUN go install github.com/air-verse/air@v1.52.3
 
 # Copy local code to the container image.
 COPY go.mod go.sum ./
