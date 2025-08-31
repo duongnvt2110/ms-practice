@@ -23,18 +23,16 @@ type KafkaClient interface {
 type kafkaClient struct {
 	Writer *kafka.Writer
 	Reader *kafka.Reader
+	cfg    *config.Config
 }
 
 func NewKafkaClient(cfg *config.Config) KafkaClient {
 	kWriter := kafka.NewWriter(kafka.WriterConfig{
 		Brokers: cfg.Kafka.Brokers,
 	})
-	kReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: cfg.Kafka.Brokers,
-	})
 	return &kafkaClient{
 		Writer: kWriter,
-		Reader: kReader,
+		cfg:    cfg,
 	}
 }
 
@@ -44,9 +42,8 @@ func (k *kafkaClient) SetWriterTopic(topic string) KafkaClient {
 }
 
 func (k *kafkaClient) SetReaderTopic(topic string, groupId string) KafkaClient {
-	kCfg := k.Reader.Config()
 	kReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: kCfg.Brokers,
+		Brokers: k.cfg.Kafka.Brokers,
 		Topic:   topic,
 		GroupID: groupId,
 	})
