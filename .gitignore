@@ -17,3 +17,7 @@ database/*
 # payment-service
 /payment-service/build/.local.env
 /payment-service/build/db
+
+# utils-service
+/utils-service/build/tmp
+/utils-service/build

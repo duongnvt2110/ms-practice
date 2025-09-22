@@ -239,15 +239,15 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 # Saga 
 ## Choreography Pattern
 ### Useccase
-- A customer places an order in OrderService.
-- OrderService saves the order and emits an OrderPlacedEvent.
+- A customer places an order in BookingService.
+<!-- - OrderService saves the order and emits an OrderPlacedEvent.
 - InventoryService listens for OrderPlacedEvent, and once it catches this event, it checks and reserves the stock. If stock is reserved successfully, it emits a StockReservedEvent.
 - If stock isn't available, it emits a StockUnavailableEvent.
 PaymentService listens for StockReservedEvent. Once it catches this event, it charges the customer.
 - If payment is successful, it emits a PaymentSuccessEvent.
 - If payment fails, it emits a PaymentFailedEvent.
 OrderService listens for PaymentSuccessEvent and PaymentFailedEvent to update the order status accordingly.
-- NotificationService listens to various events to notify the customer at different stages.
+- NotificationService listens to various events to notify the customer at different stages. -->
 ### Event 
 #### OrderService 
 - OrderPending
