@@ -249,18 +249,17 @@ PaymentService listens for StockReservedEvent. Once it catches this event, it ch
 OrderService listens for PaymentSuccessEvent and PaymentFailedEvent to update the order status accordingly.
 - NotificationService listens to various events to notify the customer at different stages. -->
 ### Event 
-#### OrderService 
-- OrderPending
-- OrderCreated 
-- OrderRejected
+#### BookingrService 
+- BookingOrdered
+- BookingConfirmed
+- BokkingFailed
+#### PaymentSerivce
+- PaymentSucceeded
+- PaymenFailed
 #### TicketService 
 - TicketPending 
 - TicketCreated
 - TicketRejected
-#### PaymentSerivce
-- PaymentPending
-- PaymentCreated 
-- PaymentRejectted
 ### NotificationService 
 - NotiPending 
 - NotiCreated

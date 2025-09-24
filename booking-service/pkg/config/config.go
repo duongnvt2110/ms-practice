@@ -4,7 +4,6 @@ import (
 	"log"
 	"sync"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -49,6 +48,5 @@ func LoadConfig() *Config {
 	if err != nil {
 		log.Println("Error loading .env file %s", err)
 	}
-	spew.Dump("test")
 	return cfg
 }

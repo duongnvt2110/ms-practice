@@ -4,14 +4,14 @@ services:
     env_file:
       - ../build/.local.env
     build:
-      context: ./..
-      dockerfile: build/Dockerfile
+      context: ../../
+      dockerfile: booking-service/build/Dockerfile
       # platforms:
       #   - linux/amd64
     ports:
       - "8004:3000"
     volumes:
-      - ..:/app
+      - ../../:/app
   booking-service-db:
     image: mysql:8.0
     restart: always

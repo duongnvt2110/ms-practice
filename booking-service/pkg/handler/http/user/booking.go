@@ -44,31 +44,27 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	orderCreated := h.createBooking()
 	if orderCreated.OrderID != "" {
 		b, _ := json.Marshal(orderCreated)
-		_ = h.kafka.SetWriterTopic(events.TopicOrderEvents).Publish(ctx, nil, b)
-
-		paymentProcessed := h.processPayment(orderCreated.OrderID, orderCreated.Amount)
-
-		if paymentProcessed.Success {
-			b, _ := json.Marshal(paymentProcessed)
-			_ = h.kafka.SetWriterTopic(events.TopicPaymentEvents).Publish(ctx, nil, b)
-		} else {
-			h.compensateOrder(orderCreated.OrderID, "Payment failed")
-		}
+		err := h.kafka.SetWriterTopic(events.BookingTopic).Publish(ctx, nil, b)
+		fmt.Println(err)
 	}
-	// response.ResponseWithSuccess(c, booking)
+	response.ResponseWithSuccess(c, "test")
 }
 
 // Private functions
 
-func (h *bookingHandler) createBooking() events.OrderPlacedEvent {
-	return events.OrderPlacedEvent{OrderID: "1", Amount: 1.0}
+func (h *bookingHandler) createBooking() events.BookingOrdered {
+	return events.BookingOrdered{
+		EventType: "BookingOrdered",
+		OrderID:   "1",
+		Amount:    1.0,
+	}
 }
 
-func (h *bookingHandler) processPayment(orderID string, amount float64) events.PaymentProcessedEvent {
-	return events.PaymentProcessedEvent{OrderID: "1", PaymentID: "1", Success: true}
-}
+// func (h *bookingHandler) processPayment(orderID string, amount float64) events.PaymentProcessedEvent {
+// 	return events.PaymentProcessedEvent{OrderID: "1", PaymentID: "1", Success: true}
+// }
 
-func (h *bookingHandler) compensateOrder(orderID string, reason string) {
-	// Logic to compensate the order, e.g., cancel or mark as failed
-	fmt.Println("Compensating Order:", orderID, "Reason:", reason)
-}
+// func (h *bookingHandler) compensateOrder(orderID string, reason string) {
+// 	// Logic to compensate the order, e.g., cancel or mark as failed
+// 	fmt.Println("Compensating Order:", orderID, "Reason:", reason)
+// }

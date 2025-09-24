@@ -14,6 +14,7 @@ func SetRoutes(r *gin.Engine, cfg *config.Config, kafka kafka.KafkaClient) {
 	{
 		bookingGroup.GET("", bookingHandler.GetBookings)
 		bookingGroup.GET("/:id", bookingHandler.GetBooking)
+		bookingGroup.POST("", bookingHandler.CreateBooking)
 	}
 
 	// r.GET("/users/{id}", userHandler.GetUser)
