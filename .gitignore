@@ -1,22 +1,27 @@
 secret/*
 database/*
 /db
+*/tmp/*
 
 # auth-service
 /auth-service/build/.local.env
 /auth-service/build/db
+/auth-service/build/tmp
 
 # user-service
 /user-service/build/.local.env
 /user-service/build/db
+/user-service/build/tmp
 
 # booking-service
 /booking-service/build/.local.env
 /booking-service/build/db
+/booking-service/build/tmp
 
 # payment-service
 /payment-service/build/.local.env
 /payment-service/build/db
+/payment-service/build/tmp
 
 # utils-service
 /utils-service/build/tmp

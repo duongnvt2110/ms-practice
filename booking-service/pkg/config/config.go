@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 
+	sharedCfg "ms-practice/pkg/config"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -14,20 +16,10 @@ var (
 )
 
 type Config struct {
-	App struct {
-		Host string `envconfig:"APP_HOST" default:"localhost:3000"`
-	}
-
-	Google struct {
-		OauthClientID     string   `envconfig:"GOOGLE_OAUTH_CLIENT_ID"`
-		OauthClientSecret string   `envconfig:"GOOGLE_OAUTH_CLIENT_SECRET"`
-		OauthScopes       []string `envconfig:"GOOGLE_OAUTH_SCOPES" default:"https://www.googleapis.com/auth/userinfo.email"`
-		OauthGoogleUrlAPI string   `envconfig:"GOOGLE_OAUTH_URL_API" default:"https://www.googleapis.com/oauth2/v2/userinfo?access_token="`
-	}
-	Kafka struct {
-		Brokers []string `envconfig:"KAFKA_BROKERS" default:"host.docker.internal:9092"`
-	}
-	Text struct {
+	sharedCfg.App
+	GRPC struct {
+		UserHost string `envconfig:"GRPC_HOST" default:"user-service"`
+		UserPort string `envconfig:"GRPC_PORT" default:"50001"`
 	}
 }
 

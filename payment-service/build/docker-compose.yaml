@@ -9,6 +9,16 @@ services:
       - .local.env
     volumes:
       - ../../:/app
+  payment-kafka-consumer:
+    build:
+      context: ../../
+      dockerfile: payment-service/build/Dockerfile
+    ports:
+      - 8005:3000
+    env_file:
+      - .local.env
+    volumes:
+      - ../../:/app
   payment-service-db:
     image: mysql:8.0
     restart: always

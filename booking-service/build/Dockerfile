@@ -1,11 +1,11 @@
 
-FROM golang:1.23.4-alpine
+FROM golang:1.23.6-alpine
 
 WORKDIR /app
 
 RUN set -x && apk update && \
     apk add -y --no-cache \
-    ca-certificates && \
+    ca-certificates bash && \
     rm -rf /var/lib/apt/lists/*
 
 # Hot Reload

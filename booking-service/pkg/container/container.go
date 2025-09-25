@@ -2,7 +2,7 @@ package container
 
 import (
 	"booking-service/pkg/config"
-	"booking-service/pkg/kafka"
+	"ms-practice/pkg/kafka"
 )
 
 type Container struct {
@@ -12,7 +12,7 @@ type Container struct {
 
 func InitializeContainer() *Container {
 	cfg := config.NewConfig()
-	k := kafka.NewKafkaClient(cfg)
+	k := kafka.NewKafkaClient(cfg.App.Kafka)
 	return &Container{
 		Cfg:   cfg,
 		Kafka: k,

@@ -2,6 +2,7 @@ package kafka_client
 
 import (
 	"context"
+	"fmt"
 
 	"payment-service/pkg/config"
 
@@ -43,10 +44,13 @@ func (k *kafkaClient) SetWriterTopic(topic string) KafkaClient {
 
 func (k *kafkaClient) SetReaderTopic(topic string, groupId string) KafkaClient {
 	kReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers: k.cfg.Kafka.Brokers,
-		Topic:   topic,
-		GroupID: groupId,
+		Brokers:  k.cfg.Kafka.Brokers,
+		Topic:    topic,
+		GroupID:  groupId,
+		MinBytes: 10e3, // 10KB
+		MaxBytes: 10e6, // 10MB
 	})
+	fmt.Println(kReader)
 	k.Reader = kReader
 	return k
 }

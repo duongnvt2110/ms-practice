@@ -44,7 +44,7 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	orderCreated := h.createBooking()
 	if orderCreated.OrderID != "" {
 		b, _ := json.Marshal(orderCreated)
-		err := h.kafka.SetWriterTopic(events.BookingTopic).Publish(ctx, nil, b)
+		err := h.kafka.SetWriterTopic(events.BookingTopic).Publish(ctx, []byte(orderCreated.OrderID), b)
 		fmt.Println(err)
 	}
 	response.ResponseWithSuccess(c, "test")
