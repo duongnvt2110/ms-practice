@@ -20,7 +20,8 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | 5   | Booking Service | booking-serivce    | localhost | 8004 |             |
 | 6   | Payment Service | payment-serivce    | localhost | 8005 |             |
 | 8   | Noti Service    | noti-serivce       | localhost | 8005 |             |
-| 9   | FrontEnd        | Frontend           | localhost | 8888 |             |
+| 9   | Event Service   | ticket-service     | localhost | 8003 |             | 
+| 10  | FrontEnd        | Frontend           | localhost | 8888 |             |
 ## Detail
 ### API Gateway
 - Proxy
@@ -123,25 +124,11 @@ https://systemdesignschool.io/problems/ticketmaster/solution
     - Update ticket info
   - Request body:
 #### Database Schema Desgin 
-- Events (events)
+- Tickets (tickets) 
   - id 
-  - cate_id
-  - event_name
-  - event_price
-  - event_date
-  - total_slot
-  - available_slot
-  - reserved_slot
-  - status
-  - created_at
-  - updated_at
-- CategoryEvent (cate_events)
-  - id 
-  - cate_name
-    - workshop
-  - cate_type
-    - free
-    - paid
+  - user_id 
+  - event_id 
+  - status 
   - created_at
   - updated_at
 #### Techstack: 
@@ -151,7 +138,7 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 - User Infos
 - User settings
 #### API Design
-- [GET] `v1/orders`
+- [GET] `v1/bookings`
   - Description
     - Get list
   - Request
@@ -160,27 +147,20 @@ https://systemdesignschool.io/problems/ticketmaster/solution
       - previous_token
   - Response
     - list user
-- [GET] `v1/orders/{id}`
+- [GET] `v1/bookings/{id}`
   - Description
     - Get user by id
   - Response
     - list user
-- [POST] `v1/orders`
+- [POST] `v1/bookings`
   - Request body:
     - event_id
     - number_slot
 #### Database Schema Desgin 
-- Tickets (tickets) 
-  - id 
-  - user_id 
-  - event_id 
-  - status 
-  - created_at
-  - updated_at
-- Orders (Orders)
+- Bookings (bookings)
   - id 
   - user_id
-  - ticket_id 
+  - event_id 
   - status 
   - created_at
   - updated_at
@@ -233,7 +213,28 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 #### Database Schema Desgin 
 #### Techstack: 
 - Golang, Mux golang
-
+### Event Service
+- Events (events)
+  - id 
+  - cate_id
+  - event_name
+  - event_price
+  - event_date
+  - total_slot
+  - available_slot
+  - reserved_slot
+  - status
+  - created_at
+  - updated_at
+- CategoryEvent (cate_events)
+  - id 
+  - cate_name
+    - workshop
+  - cate_type
+    - free
+    - paid
+  - created_at
+  - updated_at
 # CDC Service
 - Considering ...
 # Saga 

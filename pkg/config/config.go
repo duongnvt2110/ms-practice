@@ -6,7 +6,7 @@ type App struct {
 	Google
 	JWT
 	Mysql
-	Kafka
+	*Kafka
 }
 
 type JWT struct {

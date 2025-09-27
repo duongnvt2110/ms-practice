@@ -1,8 +1,8 @@
 package main
 
 import (
-	"booking-service/pkg/container"
-	http_handler "booking-service/pkg/handler/http"
+	"ms-practice/booking-service/pkg/container"
+	http_handler "ms-practice/booking-service/pkg/handler/http"
 )
 
 func main() {

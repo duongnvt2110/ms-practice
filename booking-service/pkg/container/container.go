@@ -1,20 +1,27 @@
 package container
 
 import (
-	"booking-service/pkg/config"
-	"ms-practice/pkg/kafka"
+	"ms-practice/booking-service/pkg/config"
+	"ms-practice/booking-service/pkg/utils/kafka"
+	sharedKafka "ms-practice/pkg/kafka"
 )
 
 type Container struct {
-	Cfg   *config.Config
-	Kafka kafka.KafkaClient
+	Cfg              *config.Config
+	BookingMessaging *kafka.BookingMessaging
 }
 
 func InitializeContainer() *Container {
 	cfg := config.NewConfig()
-	k := kafka.NewKafkaClient(cfg.App.Kafka)
+	kafkaClient := sharedKafka.NewKafkaClient(cfg.App.Kafka)
+	k := kafka.NewBookingKafkaClient(kafkaClient)
 	return &Container{
-		Cfg:   cfg,
-		Kafka: k,
+		Cfg:              cfg,
+		BookingMessaging: k,
 	}
 }
+
+// Assumetion we have 1 milions requests -> create 1 milions connect to client if the send a message to a topic?
+// - The issue occur
+// Solution:
+// Singleton for create client

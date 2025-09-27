@@ -1,18 +1,18 @@
 package user
 
 import (
-	"booking-service/pkg/config"
-	"ms-practice/pkg/kafka"
+	"ms-practice/booking-service/pkg/config"
+	"ms-practice/booking-service/pkg/utils/kafka"
 )
 
 type bookingHandler struct {
-	cfg   *config.Config
-	kafka kafka.KafkaClient
+	cfg              *config.Config
+	bookingMessaging *kafka.BookingMessaging
 }
 
-func NewBookingHandler(cfg *config.Config, kafka kafka.KafkaClient) bookingHandler {
+func NewBookingHandler(cfg *config.Config, BookingMessaging *kafka.BookingMessaging) bookingHandler {
 	return bookingHandler{
-		cfg:   cfg,
-		kafka: kafka,
+		cfg:              cfg,
+		bookingMessaging: BookingMessaging,
 	}
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"booking-service/pkg/config"
 	"fmt"
+	"ms-practice/booking-service/pkg/config"
 	"net"
 	"strconv"
 
@@ -19,7 +19,7 @@ func createTopic() {
 	topic := "booking.events"
 
 	cfg := config.NewConfig()
-	conn, err := kafka.Dial("tcp", cfg.Kafka.Brokers[0])
+	conn, err := kafka.Dial("tcp", cfg.GRPC.UserHost)
 	if err != nil {
 		panic(err.Error())
 	}

@@ -1,10 +1,10 @@
 package user
 
 import (
-	"booking-service/pkg/events"
-	"booking-service/pkg/utils/response"
 	"encoding/json"
 	"fmt"
+	"ms-practice/booking-service/pkg/events"
+	"ms-practice/booking-service/pkg/utils/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,7 +34,7 @@ func (h *bookingHandler) GetBooking(c *gin.Context) {
 		Name string `json:"name"`
 	}{
 		ID:   booking_id,
-		Name: "Test",
+		Name: "demo n times",
 	}
 	response.ResponseWithSuccess(c, booking)
 }
@@ -44,7 +44,7 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	orderCreated := h.createBooking()
 	if orderCreated.OrderID != "" {
 		b, _ := json.Marshal(orderCreated)
-		err := h.kafka.SetWriterTopic(events.BookingTopic).Publish(ctx, []byte(orderCreated.OrderID), b)
+		err := h.bookingMessaging.Producers[events.BookingTopicName].Publish(ctx, nil, b)
 		fmt.Println(err)
 	}
 	response.ResponseWithSuccess(c, "test")
@@ -55,7 +55,7 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 func (h *bookingHandler) createBooking() events.BookingOrdered {
 	return events.BookingOrdered{
 		EventType: "BookingOrdered",
-		OrderID:   "1",
+		OrderID:   "2",
 		Amount:    1.0,
 	}
 }

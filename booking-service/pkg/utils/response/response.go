@@ -1,8 +1,8 @@
 package response
 
 import (
-	apperror "booking-service/pkg/utils/app_error"
 	"fmt"
+	apperror "ms-practice/booking-service/pkg/utils/app_error"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

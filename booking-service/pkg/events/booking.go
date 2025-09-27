@@ -7,7 +7,3 @@ type BookingOrdered struct {
 	OrderID   string  `json:"order_id"`
 	Amount    float64 `json:"amount"`
 }
-
-const (
-	BookingTopic = "booking.events"
-)
