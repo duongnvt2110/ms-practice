@@ -3,8 +3,8 @@ package user
 import (
 	"encoding/json"
 	"fmt"
-	"ms-practice/booking-service/pkg/events"
-	"ms-practice/booking-service/pkg/utils/response"
+	event "ms-practice/booking-service/pkg/event"
+	"ms-practice/booking-service/pkg/util/response"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,10 +41,10 @@ func (h *bookingHandler) GetBooking(c *gin.Context) {
 
 func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	ctx := c.Request.Context()
-	orderCreated := h.createBooking()
+	orderCreated := h.createBookingMessage(c)
 	if orderCreated.OrderID != "" {
 		b, _ := json.Marshal(orderCreated)
-		err := h.bookingMessaging.Producers[events.BookingTopicName].Publish(ctx, nil, b)
+		err := h.bookingMessaging.Producers[event.BookingTopicName].Publish(ctx, nil, b)
 		fmt.Println(err)
 	}
 	response.ResponseWithSuccess(c, "test")
@@ -52,8 +52,13 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 
 // Private functions
 
-func (h *bookingHandler) createBooking() events.BookingOrdered {
-	return events.BookingOrdered{
+func (h *bookingHandler) createBookingDB(c *gin.Context) event.BookingOrdered {
+
+}
+
+func (h *bookingHandler) createBookingMessage(c *gin.Context) event.BookingOrdered {
+
+	return event.BookingOrdered{
 		EventType: "BookingOrdered",
 		OrderID:   "2",
 		Amount:    1.0,

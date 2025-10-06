@@ -13,8 +13,6 @@ services:
     build:
       context: ../../
       dockerfile: payment-service/build/Dockerfile
-    ports:
-      - 8005:3000
     env_file:
       - .local.env
     volumes:

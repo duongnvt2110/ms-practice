@@ -3,7 +3,7 @@ package http_handler
 import (
 	"ms-practice/booking-service/pkg/config"
 	"ms-practice/booking-service/pkg/handler/http/user"
-	"ms-practice/booking-service/pkg/utils/kafka"
+	"ms-practice/booking-service/pkg/util/kafka"
 
 	"github.com/gin-gonic/gin"
 )

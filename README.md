@@ -220,7 +220,7 @@ https://systemdesignschool.io/problems/ticketmaster/solution
   - id 
   - user_id
   - booking_id
-  - amounts
+  - prices
   - method
   - idempotency_key
   - status

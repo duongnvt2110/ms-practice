@@ -1,8 +1,8 @@
 package container
 
 import (
-	"payment-service/pkg/config"
-	kafka_client "payment-service/pkg/utils/kafka"
+	"ms-practice/payment-service/pkg/config"
+	kafka_client "ms-practice/payment-service/pkg/util/kafka"
 )
 
 type Container struct {

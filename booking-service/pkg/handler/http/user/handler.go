@@ -2,7 +2,7 @@ package user
 
 import (
 	"ms-practice/booking-service/pkg/config"
-	"ms-practice/booking-service/pkg/utils/kafka"
+	"ms-practice/booking-service/pkg/util/kafka"
 )
 
 type bookingHandler struct {

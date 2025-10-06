@@ -2,7 +2,8 @@ secret/*
 database/*
 /db
 */tmp/*
-
+/node_modules
+/package.json
 # auth-service
 /auth-service/build/.local.env
 /auth-service/build/db

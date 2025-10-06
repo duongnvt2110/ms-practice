@@ -8,8 +8,8 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/segmentio/kafka-go"
 
-	"payment-service/pkg/events"
-	kafka_client "payment-service/pkg/utils/kafka"
+	event "ms-practice/payment-service/pkg/event"
+	kafka_client "ms-practice/payment-service/pkg/util/kafka"
 )
 
 type PaymentConsumer struct {
@@ -21,11 +21,11 @@ func NewPaymentConsumer(k kafka_client.KafkaClient) *PaymentConsumer {
 }
 
 func (p *PaymentConsumer) Start(ctx context.Context) error {
-	return p.kafka.SetReaderTopic(events.BookingTopic, "booking.consumer").Consume(ctx, p.handle)
+	return p.kafka.SetReaderTopic(event.BookingTopic, "booking.consumer").Consume(ctx, p.handle)
 }
 
 func (p *PaymentConsumer) handle(m kafka.Message) {
-	var evt events.BookingOrdered
+	var evt event.BookingOrdered
 	if err := json.Unmarshal(m.Value, &evt); err != nil {
 		log.Printf("failed to unmarshal event: %v", err)
 		return
