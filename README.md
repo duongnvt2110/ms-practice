@@ -20,8 +20,13 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | 5   | Booking Service | booking-serivce    | localhost | 8004 |             |
 | 6   | Payment Service | payment-serivce    | localhost | 8005 |             |
 | 8   | Noti Service    | noti-serivce       | localhost | 8005 |             |
-| 9   | Event Service   | ticket-service     | localhost | 8003 |             | 
+| 9   | Event Service   | event-service      | localhost | 8003 |             |
 | 10  | FrontEnd        | Frontend           | localhost | 8888 |             |
+### Overrall the flow 
+- User authenticate though by the AuthService and get user's information by User Service.
+- User books a the ticket via the booking service and the booking services store the booking information after send an booking event to the booking.events. the payment service consumes the evvent from that to process payment or handle other exception
+- If the payment succeeded this emit an event to the payment.events and the booking services pull this event to generate the ticket. It also send the noti to the users 
+- The booking information will get from the event services.
 ## Detail
 ### API Gateway
 - Proxy
@@ -127,13 +132,19 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 - Tickets (tickets) 
   - id 
   - user_id 
-  - event_id 
+  - booking_id
+  - booking_item_id
+  - event_type_id
+  - event_id
+  - issued_at
+  - code
+  - qr_payload
   - status 
   - created_at
   - updated_at
 #### Techstack: 
 - Golang, Mux golang
-### Order Service 
+### Booking Service 
 #### Goal
 - User Infos
 - User settings
@@ -162,8 +173,23 @@ https://systemdesignschool.io/problems/ticketmaster/solution
   - user_id
   - event_id 
   - status 
+  - quantity
+  - prices
+  - idempotency_key
+  - status
+  - logs
   - created_at
   - updated_at
+- BookingItems 
+  - id
+  - booking_id
+  - event_type_id 
+  - qty 
+  - unit_price
+  - currency 
+  - created_at
+  - updated_at 
+  - 
 #### Techstack: 
 - Golang, Mux golang
 ### Payment Service 
@@ -193,14 +219,18 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 - Payments (payments)
   - id 
   - user_id
-  - order_id
-  - amount
+  - booking_id
+  - amounts
+  - method
+  - idempotency_key
   - status
   - created_at
   - updated_at
 - PaymentHistory (payment_histories)
-  - pay_id
+  - payment_id
   - status
+  - logs
+  - paid_at
   - created_at
   - updated_at
 #### Techstack: 
@@ -216,25 +246,31 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 ### Event Service
 - Events (events)
   - id 
-  - cate_id
-  - event_name
-  - event_price
-  - event_date
-  - total_slot
-  - available_slot
-  - reserved_slot
+  - category_id
+  - name
+  - starts_at
+  - ends_at
+  - max_per_user
   - status
   - created_at
   - updated_at
-- CategoryEvent (cate_events)
+- EventCategory (event_categories)
   - id 
-  - cate_name
+  - name
     - workshop
-  - cate_type
+  - type
     - free
     - paid
   - created_at
   - updated_at
+- EventTypes
+  - id 
+  - event_id
+  - name 
+  - prices
+  - currency
+  - status 
+  - capacity  
 # CDC Service
 - Considering ...
 # Saga 
