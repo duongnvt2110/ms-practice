@@ -2,14 +2,14 @@ package http_handler
 
 import (
 	"ms-practice/booking-service/pkg/config"
-	"ms-practice/booking-service/pkg/handler/http/user"
+	"ms-practice/booking-service/pkg/handler/http/booking"
 	"ms-practice/booking-service/pkg/util/kafka"
 
 	"github.com/gin-gonic/gin"
 )
 
 func SetRoutes(r *gin.Engine, cfg *config.Config, kafka *kafka.BookingMessaging) {
-	bookingHandler := user.NewBookingHandler(cfg, kafka)
+	bookingHandler := booking.NewBookingHandler(cfg, kafka)
 	bookingGroup := r.Group("bookings")
 	{
 		bookingGroup.GET("", bookingHandler.GetBookings)

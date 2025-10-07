@@ -3,6 +3,9 @@ services:
     image: booking-service:latest
     env_file:
       - ../build/.local.env
+    environments:
+    - GOOSE_DRIVER=mysql
+    - GOOSE_DBSTRING="admin:admin@tcp(booking-service-db:3306)/booking_service?charset=utf8mb4&parseTime=True&loc=Local"
     build:
       context: ../../
       dockerfile: booking-service/build/Dockerfile

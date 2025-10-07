@@ -1,4 +1,4 @@
-package entity
+package model
 
 import "time"
 
@@ -6,7 +6,7 @@ type BookingItem struct {
 	Id          int
 	BookingId   int
 	EventTypeId int
-	Qty         string
+	Qty         int
 	UnitPrice   int
 	Currency    string
 	CreatedAt   time.Time

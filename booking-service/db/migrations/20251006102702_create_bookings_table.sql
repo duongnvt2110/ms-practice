@@ -18,5 +18,4 @@ CREATE TABLE
 -- +goose Down
 -- +goose StatementBegin
 DROP TABLE IF EXISTS bookings;
-
 -- +goose StatementEnd
