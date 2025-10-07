@@ -2,17 +2,17 @@ package booking
 
 import (
 	"ms-practice/booking-service/pkg/config"
-	"ms-practice/booking-service/pkg/util/kafka"
+	usecase "ms-practice/booking-service/pkg/usecase/booking"
 )
 
 type bookingHandler struct {
-	cfg              *config.Config
-	bookingMessaging *kafka.BookingMessaging
+	cfg     *config.Config
+	usecase usecase.Usecase
 }
 
-func NewBookingHandler(cfg *config.Config, BookingMessaging *kafka.BookingMessaging) bookingHandler {
-	return bookingHandler{
-		cfg:              cfg,
-		bookingMessaging: BookingMessaging,
+func NewBookingHandler(cfg *config.Config, uc usecase.Usecase) *bookingHandler {
+	return &bookingHandler{
+		cfg:     cfg,
+		usecase: uc,
 	}
 }

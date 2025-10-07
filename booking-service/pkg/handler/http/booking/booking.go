@@ -1,89 +1,96 @@
 package booking
 
 import (
-	event "ms-practice/booking-service/pkg/event"
-	"ms-practice/booking-service/pkg/model"
+	"errors"
+	"strconv"
+
+	usecase "ms-practice/booking-service/pkg/usecase/booking"
+	apperror "ms-practice/booking-service/pkg/util/app_error"
 	"ms-practice/booking-service/pkg/util/response"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 func (h *bookingHandler) GetBookings(c *gin.Context) {
-	bookings := []struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}{
-		{
-			ID:   "123",
-			Name: "Test",
-		},
-		{
-			ID:   "123232",
-			Name: "Test3",
-		},
+	ctx := c.Request.Context()
+	var userID *int
+	if userIDParam := c.Query("user_id"); userIDParam != "" {
+		id, err := strconv.Atoi(userIDParam)
+		if err != nil {
+			response.ResponseWithError(c, apperror.ErrBadRequest.Wrap(err))
+			return
+		}
+		userID = &id
 	}
+
+	bookings, err := h.usecase.ListBookings(ctx, usecase.ListBookingsInput{UserID: userID})
+	if err != nil {
+		response.ResponseWithError(c, apperror.ErrInternalServer.Wrap(err))
+		return
+	}
+
 	response.ResponseWithSuccess(c, bookings)
 }
 
 func (h *bookingHandler) GetBooking(c *gin.Context) {
-	// Retrieve the `id` from the route
-	booking_id := c.Param("id")
-	booking := struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}{
-		ID:   booking_id,
-		Name: "demo n times",
+	ctx := c.Request.Context()
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		response.ResponseWithError(c, apperror.ErrBadRequest.Wrap(err))
+		return
 	}
+
+	booking, err := h.usecase.GetBooking(ctx, id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.ResponseWithError(c, apperror.ErrNotFound.Wrap(err))
+			return
+		}
+		response.ResponseWithError(c, apperror.ErrInternalServer.Wrap(err))
+		return
+	}
+
 	response.ResponseWithSuccess(c, booking)
 }
 
 func (h *bookingHandler) CreateBooking(c *gin.Context) {
-	// ctx := c.Request.Context()
-	h.createBookingDB(c)
-	// orderCreated := h.createBookingMessage(c)
-	// if orderCreated.OrderID != "" {
-	// 	b, _ := json.Marshal(orderCreated)
-	// 	err := h.bookingMessaging.Producers[event.BookingTopicName].Publish(ctx, nil, b)
-	// 	fmt.Println(err)
-	// }
-	response.ResponseWithSuccess(c, "test")
-}
-
-// Private functions
-
-func (h *bookingHandler) createBookingDB(c *gin.Context) {
-	var form BookingFormRequest
-	c.Bind(&form)
-	idempotencyKey := c.GetHeader("Idempotency-Key")
-	booking := model.Booking{
-		EventId:        form.EventID,
-		Quantity:       form.Quantity,
-		IdempotencyKey: idempotencyKey,
+	ctx := c.Request.Context()
+	var req createBookingRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.ResponseWithError(c, apperror.ErrBadRequest.Wrap(err))
+		return
 	}
-	bookingItems := model.BookingItem{
-		BookingId:   1,
-		Qty:         form.Quantity,
-		UnitPrice:   10,
-		EventTypeId: form.EventItemId,
-		Currency:    "VND",
+
+	input := usecase.CreateBookingInput{
+		UserID:         req.UserID,
+		EventID:        req.EventID,
+		IdempotencyKey: req.IdempotencyKey,
 	}
-}
-
-func (h *bookingHandler) createBookingMessage(c *gin.Context) event.BookingOrdered {
-
-	return event.BookingOrdered{
-		EventType: "BookingOrdered",
-		OrderID:   "2",
-		Amount:    1.0,
+	if headerKey := c.GetHeader("Idempotency-Key"); headerKey != "" {
+		input.IdempotencyKey = headerKey
 	}
+	for _, item := range req.Items {
+		input.Items = append(input.Items, usecase.CreateBookingItem{
+			EventTypeID: item.EventTypeID,
+			Quantity:    item.Quantity,
+			UnitPrice:   item.UnitPrice,
+			Currency:    item.Currency,
+		})
+	}
+
+	result, err := h.usecase.CreateBooking(ctx, input)
+	if err != nil {
+		var validationErr usecase.ValidationError
+		switch {
+		case errors.As(err, &validationErr):
+			response.ResponseWithError(c, apperror.ErrBadRequest.Wrap(err))
+		default:
+			response.ResponseWithError(c, apperror.ErrInternalServer.Wrap(err))
+		}
+		return
+	}
+
+	response.ResponseWithSuccess(c, result)
 }
-
-// func (h *bookingHandler) processPayment(orderID string, amount float64) events.PaymentProcessedEvent {
-// 	return events.PaymentProcessedEvent{OrderID: "1", PaymentID: "1", Success: true}
-// }
-
-// func (h *bookingHandler) compensateOrder(orderID string, reason string) {
-// 	// Logic to compensate the order, e.g., cancel or mark as failed
-// 	fmt.Println("Compensating Order:", orderID, "Reason:", reason)
-// }

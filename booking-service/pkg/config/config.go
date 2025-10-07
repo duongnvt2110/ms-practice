@@ -33,12 +33,12 @@ func NewConfig() *Config {
 func LoadConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file %s", err)
+		log.Printf("Error loading .env file %v", err)
 	}
 	cfg = &Config{}
 	err = envconfig.Process("", cfg)
 	if err != nil {
-		log.Println("Error loading .env file %s", err)
+		log.Printf("Error parsing environment config %v", err)
 	}
 	return cfg
 }
