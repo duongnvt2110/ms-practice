@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package gen;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "ms-practice/proto/gen";
+
+message Payment {
+    int32 id = 1;
+    string email = 2;
+    string first_name = 3;
+    string last_name = 4;
+    string birthday = 5;
+    string phone_number = 6;
+}
+
+message GetPaymentRequest {
+    int32 id = 1;
+}
+
+message GetUserResponse {
+    Payment payment = 1;
+}
+
+service PaymentService {
+    rpc GetPayment(GetPaymentRequest) returns (GetUserResponse);
+}

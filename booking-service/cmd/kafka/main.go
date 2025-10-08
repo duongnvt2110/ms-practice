@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"ms-practice/booking-service/pkg/config"
 	"net"
 	"strconv"
@@ -31,7 +30,6 @@ func createTopic() {
 		panic(err.Error())
 	}
 	var controllerConn *kafka.Conn
-	fmt.Println(controller)
 	controllerConn, err = kafka.Dial("tcp", net.JoinHostPort(controller.Host, strconv.Itoa(controller.Port)))
 	if err != nil {
 		panic(err.Error())

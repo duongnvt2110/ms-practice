@@ -289,7 +289,7 @@ OrderService listens for PaymentSuccessEvent and PaymentFailedEvent to update th
 #### BookingrService 
 - BookingOrdered
 - BookingConfirmed
-- BokkingFailed
+- BookingFailed
 #### PaymentSerivce
 - PaymentSucceeded
 - PaymenFailed

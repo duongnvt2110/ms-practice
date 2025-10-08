@@ -2,7 +2,6 @@ package kafka_client
 
 import (
 	"context"
-	"fmt"
 
 	"ms-practice/payment-service/pkg/config"
 
@@ -50,7 +49,6 @@ func (k *kafkaClient) SetReaderTopic(topic string, groupId string) KafkaClient {
 		MinBytes: 10e3, // 10KB
 		MaxBytes: 10e6, // 10MB
 	})
-	fmt.Println(kReader)
 	k.Reader = kReader
 	return k
 }

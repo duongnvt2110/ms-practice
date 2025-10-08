@@ -4,7 +4,7 @@ package events
 // during the choreography saga.
 type BookingOrdered struct {
 	EventType string  `json:"event_type"`
-	OrderID   string  `json:"order_id"`
+	OrderID   int     `json:"order_id"`
 	Amount    float64 `json:"amount"`
 }
 

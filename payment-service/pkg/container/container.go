@@ -1,17 +1,31 @@
 package container
 
 import (
+	"fmt"
 	"ms-practice/payment-service/pkg/config"
-	kafka_client "ms-practice/payment-service/pkg/util/kafka"
+	"ms-practice/payment-service/pkg/repository"
+	"ms-practice/payment-service/pkg/usecase"
+	"ms-practice/pkg/db/gorm_client"
+	"os"
 )
 
 type Container struct {
-	Cfg   *config.Config
-	Kafka kafka_client.KafkaClient
+	Cfg     *config.Config
+	Usecase *usecase.Usecase
 }
 
 func InitializeContainer() *Container {
 	cfg := config.NewConfig()
-	kafka := kafka_client.NewKafkaClient(cfg)
-	return &Container{Cfg: cfg, Kafka: kafka}
+	// Initialize dependencies
+	db, err := gorm_client.NewGormClient(cfg.Mysql.PrimaryHosts, cfg.Mysql.ReadHosts, cfg.Mysql.User, cfg.Mysql.Password, cfg.Mysql.Port, cfg.Mysql.DBName)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	repo := repository.NewRepository(db)
+	usecases := usecase.NewUsecase(repo)
+	return &Container{
+		Cfg:     cfg,
+		Usecase: usecases,
+	}
 }

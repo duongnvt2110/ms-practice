@@ -1,4 +1,4 @@
-package events
+package event
 
 type Producer string
 type Consumer string

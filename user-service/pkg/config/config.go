@@ -17,9 +17,6 @@ var (
 
 type Config struct {
 	sharedCfg.App
-	GRPC struct {
-		Port string `envconfig:"GRPC_PORT" default:"50001"`
-	}
 }
 
 func NewConfig() *Config {
