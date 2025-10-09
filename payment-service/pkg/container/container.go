@@ -10,8 +10,8 @@ import (
 )
 
 type Container struct {
-	Cfg     *config.Config
-	Usecase *usecase.Usecase
+	Cfg      *config.Config
+	Usecases *usecase.Usecase
 }
 
 func InitializeContainer() *Container {
@@ -25,7 +25,7 @@ func InitializeContainer() *Container {
 	repo := repository.NewRepository(db)
 	usecases := usecase.NewUsecase(repo)
 	return &Container{
-		Cfg:     cfg,
-		Usecase: usecases,
+		Cfg:      cfg,
+		Usecases: usecases,
 	}
 }

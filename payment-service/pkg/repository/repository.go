@@ -1,13 +1,18 @@
 package repository
 
-import "gorm.io/gorm"
+import (
+	"ms-practice/payment-service/pkg/repository/payment"
+
+	"gorm.io/gorm"
+)
 
 type Repository struct {
-	db *gorm.DB
+	PaymentRepo payment.PaymentRepoInterface
 }
 
 func NewRepository(db *gorm.DB) *Repository {
+	paymentRepo := payment.NewPaymentRepo(db)
 	return &Repository{
-		db: db,
+		PaymentRepo: paymentRepo,
 	}
 }

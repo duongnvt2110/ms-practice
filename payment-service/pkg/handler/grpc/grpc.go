@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"ms-practice/payment-service/pkg/container"
+	"ms-practice/payment-service/pkg/handler/grpc/payment"
 	"ms-practice/proto/gen"
-	"ms-practice/user-service/pkg/handler/http/user"
 	"net"
 	"os"
 	"time"
@@ -21,10 +21,10 @@ func StartGRPCUserServiceServer(c *container.Container, ctx context.Context) {
 		log.Fatalf("Failed to listen: %v", err)
 	}
 
-	userHandler := user.NewUserHandler(c.Usecase.UserUC)
+	paymentGrpcHandler := payment.NewPaymentGrpcHandler(c.Usecases.PaymentUC)
 
 	grpcServer := grpc.NewServer()
-	gen.RegisterUserServiceServer(grpcServer, userHandler)
+	gen.RegisterPaymentServiceServer(grpcServer, paymentGrpcHandler)
 
 	logChannel := make(chan string)
 
