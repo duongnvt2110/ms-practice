@@ -1,71 +1,52 @@
-package kafka_client
+package kafka
 
 import (
-	"context"
-
-	"ms-practice/payment-service/pkg/config"
-
-	"github.com/segmentio/kafka-go"
+	"ms-practice/payment-service/pkg/event"
+	sharedKafaka "ms-practice/pkg/kafka"
+	"sync"
 )
 
-type KafkaClient interface {
-	// Publish sends a message to the configured topic
-	Publish(ctx context.Context, key, value []byte) error
-	// Consume reads messages from the configured topic and calls handler for
-	// each message. The consumer stops when ctx is cancelled or an error occurs.
-	Consume(ctx context.Context, handler func(kafka.Message)) error
-	// SetWriterTopic sets the topic for the writer
-	SetWriterTopic(topic string) KafkaClient
-	// SetReaderTopic sets the topic for the reader along with consumer group id
-	SetReaderTopic(topic string, groupId string) KafkaClient
+var (
+	cfgOnce          sync.Once
+	bookingMessaging *BookingMessaging
+)
+
+type BookingMessaging struct {
+	Consumers map[event.Consumer]sharedKafaka.KafkaClient
+	Producers map[event.Producer]sharedKafaka.KafkaClient
 }
 
-type kafkaClient struct {
-	Writer *kafka.Writer
-	Reader *kafka.Reader
-	cfg    *config.Config
-}
-
-func NewKafkaClient(cfg *config.Config) KafkaClient {
-	kWriter := kafka.NewWriter(kafka.WriterConfig{
-		Brokers: cfg.Kafka.Brokers,
+func NewBookingKafkaClient(kafkaClient sharedKafaka.KafkaClient) *BookingMessaging {
+	bookingMessaging = &BookingMessaging{
+		Consumers: make(map[event.Consumer]sharedKafaka.KafkaClient),
+		Producers: make(map[event.Producer]sharedKafaka.KafkaClient),
+	}
+	cfgOnce.Do(func() {
+		initalizeKafkaConnection(kafkaClient, bookingMessaging)
 	})
-	return &kafkaClient{
-		Writer: kWriter,
-		cfg:    cfg,
+	return bookingMessaging
+}
+
+func initalizeKafkaConnection(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
+	initializeProducer(kafkaClient, k)
+	initializeConsumer(kafkaClient, k)
+}
+
+func initializeProducer(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
+	for _, topic := range event.BookingTopic {
+		if topic.Enable {
+			topicName := event.Producer(topic.ProducerName)
+			k.Producers[topicName] = kafkaClient.SetWriterTopic(string(topicName))
+		}
 	}
 }
 
-func (k *kafkaClient) SetWriterTopic(topic string) KafkaClient {
-	k.Writer.Topic = topic
-	return k
-}
-
-func (k *kafkaClient) SetReaderTopic(topic string, groupId string) KafkaClient {
-	kReader := kafka.NewReader(kafka.ReaderConfig{
-		Brokers:  k.cfg.Kafka.Brokers,
-		Topic:    topic,
-		GroupID:  groupId,
-		MinBytes: 10e3, // 10KB
-		MaxBytes: 10e6, // 10MB
-	})
-	k.Reader = kReader
-	return k
-}
-
-// Publish implements KafkaClient.Publish
-func (k *kafkaClient) Publish(ctx context.Context, key, value []byte) error {
-	msg := kafka.Message{Key: key, Value: value}
-	return k.Writer.WriteMessages(ctx, msg)
-}
-
-// Consume implements KafkaClient.Consume
-func (k *kafkaClient) Consume(ctx context.Context, handler func(kafka.Message)) error {
-	for {
-		m, err := k.Reader.ReadMessage(ctx)
-		if err != nil {
-			return err
+func initializeConsumer(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
+	for _, topic := range event.BookingTopic {
+		if topic.Enable {
+			topicName := event.Producer(topic.ProducerName)
+			consumerName := event.Consumer(topic.ConsumerName)
+			k.Consumers[consumerName] = kafkaClient.SetReaderTopic(string(topicName), string(topic.GroupID))
 		}
-		handler(m)
 	}
 }

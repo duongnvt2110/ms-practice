@@ -13,6 +13,8 @@ services:
     build:
       context: ../../
       dockerfile: payment-service/build/Dockerfile
+    environment:
+      MAIN_PKG: ./cmd/consumer/main.go
     env_file:
       - .local.env
     volumes:

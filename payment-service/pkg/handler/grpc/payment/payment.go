@@ -26,21 +26,21 @@ func (h *PaymentHandler) GetPayment(ctx context.Context, req *gen.GetPaymentRequ
 			Id:        int32(payment.Id),
 			UserId:    int32(payment.UserId),
 			BookingId: int32(payment.BookingID),
-			Quantity: int32(payment.Quantity),
-			Prices: float32(payment.Prices),
-			CreatedAt: payment.CreatedAt,
-			UpdatedAt: payment.UpdatedAt,
+			Quantity:  int32(payment.Quantity),
+			Prices:    float32(payment.Prices),
+			// CreatedAt:      payment.CreatedAt,
+			// UpdatedAt:      payment.UpdatedAt,
 			PaymentHistory: &gen.PaymentHistory{},
 		},
 	}, nil
 }
 
-    int32 id = 1;
-    int32 user_id = 2;
-    int32 booking_id = 3;
-    int32 quantity = 4;
-    float prices = 5;
-    string method = 6;
-    google.protobuf.Timestamp created_at = 7;
-    google.protobuf.Timestamp updated_at = 8;
-    PaymentHistory payment_history = 9;
+// int32 id = 1;
+// int32 user_id = 2;
+// int32 booking_id = 3;
+// int32 quantity = 4;
+// float prices = 5;
+// string method = 6;
+// google.protobuf.Timestamp created_at = 7;
+// google.protobuf.Timestamp updated_at = 8;
+// PaymentHistory payment_history = 9;

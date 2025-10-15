@@ -9,24 +9,24 @@ import (
 	"github.com/segmentio/kafka-go"
 
 	event "ms-practice/payment-service/pkg/event"
-	kafka_client "ms-practice/payment-service/pkg/util/kafka"
+	kafka_booking "ms-practice/payment-service/pkg/util/kafka"
 )
 
 type PaymentConsumer struct {
-	kafka kafka_client.KafkaClient
+	message *kafka_booking.BookingMessaging
 }
 
-func NewPaymentConsumer(k kafka_client.KafkaClient) *PaymentConsumer {
-	return &PaymentConsumer{kafka: k}
+func NewPaymentConsumer(message *kafka_booking.BookingMessaging) *PaymentConsumer {
+	return &PaymentConsumer{message: message}
 }
 
 func (p *PaymentConsumer) Start(ctx context.Context) error {
-	return p.kafka.SetReaderTopic(event.BookingTopic, "booking.consumer").Consume(ctx, p.handle)
+	return p.message.Consumers[event.BoookingConsumerName].Consume(ctx, p.handle)
 }
 
-func (p *PaymentConsumer) handle(m kafka.Message) {
-	var evt event.BookingOrdered
-	if err := json.Unmarshal(m.Value, &evt); err != nil {
+func (p *PaymentConsumer) handle(k kafka.Message) {
+	var evt event.BookingPayload
+	if err := json.Unmarshal(k.Value, &evt); err != nil {
 		log.Printf("failed to unmarshal event: %v", err)
 		return
 	}

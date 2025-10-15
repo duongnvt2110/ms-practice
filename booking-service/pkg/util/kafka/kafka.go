@@ -18,7 +18,7 @@ type BookingMessaging struct {
 }
 
 func NewBookingKafkaClient(kafkaClient sharedKafaka.KafkaClient) *BookingMessaging {
-	bookingMessaging := &BookingMessaging{
+	bookingMessaging = &BookingMessaging{
 		Consumers: make(map[events.Consumer]sharedKafaka.KafkaClient),
 		Producers: make(map[events.Producer]sharedKafaka.KafkaClient),
 	}

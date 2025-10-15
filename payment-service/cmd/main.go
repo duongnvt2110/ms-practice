@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"ms-practice/payment-service/pkg/container"
+	grpc_handler "ms-practice/payment-service/pkg/handler/grpc"
 )
 
 func main() {
@@ -17,11 +18,11 @@ func main() {
 	defer stop()
 	var wg sync.WaitGroup
 	// Run HTTP Server
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		http_handler.StartHTTPServer(c, ctx)
-	}()
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	http_handler.StartHTTPServer(c, ctx)
+	// }()
 
 	// Run GRPC Server
 	wg.Add(1)
