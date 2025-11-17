@@ -6,6 +6,8 @@ type App struct {
 	Google
 	JWT
 	Mysql
+	*Kafka
+	GRPC
 }
 
 type JWT struct {
@@ -28,4 +30,12 @@ type Mysql struct {
 	User         string   `envconfig:"MYSQL_USER" default:"admin"`
 	Password     string   `envconfig:"MYSQL_PASSWORD" default:"admin"`
 	DBName       string   `envconfig:"MYSQL_DB_NAME" default:"user_service"`
+}
+
+type Kafka struct {
+	Brokers []string `envconfig:"KAFKA_BROKERS" default:"host.docker.internal:29092"`
+}
+
+type GRPC struct {
+	Port string `envconfig:"GRPC_PORT" default:"50001"`
 }

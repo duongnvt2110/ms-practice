@@ -1,12 +1,23 @@
 # Architecture 
 ## Ticketing System
 https://systemdesignschool.io/problems/ticketmaster/solution
-## Requirements 
+## Requirements
 ### Functional Requirements
-- Users can search for and book resources such as (concert, sports,....)
-- Availability is updated in real-time.
-- Payments are processed securely.
-- Notifications are sent promptly.
+- Users
+ - Search and view the events (Liveshow music, concerts, sports, films and others)
+ - Booking the events
+   - Choose number of seats
+   - Choose the position of seats (optional)
+ - Checkout
+   - Hold the seats in 15 minutes
+   - Confirm information
+   - Confirm the payment method
+   - Proceed payment
+ - Send notify
+   - Ticket to the email
+   - Noti in the website
+- Organizer
+ - Create/Delete/Edit the events
 ### Non-Functional Requirements
 
 # Services 
@@ -19,8 +30,12 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 | 4   | Ticket Service  | ticket-service     | localhost | 8003 |             |
 | 5   | Booking Service | booking-serivce    | localhost | 8004 |             |
 | 6   | Payment Service | payment-serivce    | localhost | 8005 |             |
-| 8   | Noti Service    | noti-serivce       | localhost | 8005 |             |
-| 9   | FrontEnd        | Frontend           | localhost | 8888 |             |
+| 8   | Noti Service    | noti-serivce       | localhost | 8006 |             |
+| 9   | Catalog Service | catalog-service    | localhost | 8007 |             |
+| 11  | FrontEnd        | Frontend           | localhost | 8888 |             |
+### Overral the flow 
+- User authenticate though by the AuthService and get user's information by User Service.
+- User -> Choose the events -> choose the position of seats (optinal) ->  input the number of seats -> proceed booking the tickets -> confirm the booking information -> select the payment method -> payment proceed.
 ## Detail
 ### API Gateway
 - Proxy
@@ -35,7 +50,7 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 - Validate token 
 - Rotate token 
 #### API Design
-- [POST] `v1/login`
+- [POST] `v1/auths/login`
   - Request 
     - Body:
       - username|email
@@ -43,16 +58,17 @@ https://systemdesignschool.io/problems/ticketmaster/solution
   - Response
     - access_token
     - refresh_token  
+- [POST] `v1/auths/refresh_token`
+  - refresh_token
 - [POST] `v1/logout`
+  - refresh_token
 - [POST] `v1/register`
   - Request
     - Body:
       - email 
-      - user_name
-      - first_name
-      - last_name
+      - username
       - password
-      - mobile_phone
+      - mobile_number
 #### Database Schema Desgin 
 - AuthProfiles (auth_profiles)
   - id 
@@ -61,42 +77,38 @@ https://systemdesignschool.io/problems/ticketmaster/solution
   - password (hashing)
   - created_at
   - updated_at
+- auth_refresh_tokens
+  - id
+  - auth_profile_id
+  - token
+  - expired_at
+  - creatd_at
+  - updated_at
 ### User Service
 #### Goal
 - User Infos
 - User settings
 #### API Design
-- [GET] `v1/users`
-  - Description
-    - Get list users
-  - Request
-    - Query params 
-      - next_token 
-      - previous_token
-  - Response
-    - list user
-- [GET] `v1/users/{id}`
-  - Description
-    - Get user by id
-  - Response
-    - list user
-- [PUT] `v1/users/{id}`
-  - Request body:
-    - user_name
-    - first_name
-    - last_name
-    - birth_day
-    - mobile_phone
+- [GET] `v1/users/me`
+ - id
+ - email
+ - username
+ - avatar
+ - brithday
+ - user_settings
 #### Database Schema Desgin 
 - Users (users)
   - id 
-  - user_name
-  - first_name
-  - last_name
+  - email
+  - username
   - birth_day
-  - mobile_phone
+  - avatar
+  - mobile_number
   - created_at
   - updated_at
+- `user_settings`
+   - id
+   - allow_noti
 #### Techstack: 
 - Golang, Mux golang
 ### Ticket Service 
@@ -123,65 +135,75 @@ https://systemdesignschool.io/problems/ticketmaster/solution
     - Update ticket info
   - Request body:
 #### Database Schema Desgin 
-- Events (events)
+- Tickets (tickets) 
   - id 
-  - cate_id
-  - event_name
-  - event_price
-  - event_date
-  - total_slot
-  - available_slot
-  - reserved_slot
+  - user_id
+  - booking_id
+  - payment_id
+  - ticket_type_id
+  - code
+  - qr_url
   - status
-  - created_at
-  - updated_at
-- CategoryEvent (cate_events)
-  - id 
-  - cate_name
-    - workshop
-  - cate_type
-    - free
-    - paid
   - created_at
   - updated_at
 #### Techstack: 
 - Golang, Mux golang
-### Order Service 
+### Booking Service 
 #### Goal
 - User Infos
 - User settings
 #### API Design
-- [GET] `v1/orders`
-  - Description
-    - Get list
-  - Request
-    - Query params 
-      - next_token 
-      - previous_token
-  - Response
-    - list user
-- [GET] `v1/orders/{id}`
-  - Description
-    - Get user by id
-  - Response
-    - list user
-- [POST] `v1/orders`
-  - Request body:
-    - event_id
-    - number_slot
+- [POST] `v1/bookings/hold`
+```
+{
+ event_id
+ event_type_id
+ qty
+}
+```
+- [POST] `v1/bookings/{id}/information`
+```
+  "email": "user@example.com",
+  "phone": "+84...",
+  "address": "..."
+```
+- [POST] `v1/bookings/{id}/confirm`
+```
+  "email": "user@example.com",
+  "phone": "+84...",
+  "address": "..."
+```
+- [POST] `v1/bookings/{id}/cancel`
+- [GET] /v1/bookings/{id}
 #### Database Schema Desgin 
-- Tickets (tickets) 
+`bookings`
   - id 
-  - user_id 
-  - event_id 
-  - status 
+  - idempotency_key
+  - event_id
+  - user_id
+  - holded_at
+  - expired_at
+  - booking_code
+  - total_price
+  - status
+  - log
   - created_at
   - updated_at
-- Orders (Orders)
+`booking_items` 
+  - id
+  - booking_id
+  - ticket_type_id
+  - qty
+  - price 
+  - created_at
+  - updated_at
+`booking_users`
   - id 
+  - booking_id
   - user_id
-  - ticket_id 
-  - status 
+  - email 
+  - mobile_number
+  - address
   - created_at
   - updated_at
 #### Techstack: 
@@ -210,19 +232,19 @@ https://systemdesignschool.io/problems/ticketmaster/solution
     - order_id
     - price
 #### Database Schema Desgin 
-- Payments (payments)
-  - id 
-  - user_id
-  - order_id
-  - amount
-  - status
-  - created_at
-  - updated_at
-- PaymentHistory (payment_histories)
-  - pay_id
-  - status
-  - created_at
-  - updated_at
+`payments` 
+- id 
+- payment_code
+- user_id
+- booking_id
+- transaction_id (3rd)
+- price
+- status
+- provider
+- paid_at
+- created_at
+- updated_at
+
 #### Techstack: 
 - Golang, Mux golang
 ### Noti Service 
@@ -233,34 +255,102 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 #### Database Schema Desgin 
 #### Techstack: 
 - Golang, Mux golang
+### Event Service
+#### API Design
+- [GET] `v1/events`
+```
+[
+ {
+   id: int
+   name: string
+   start_at: time
+   end_at: time
+   banner: string
+   location
+   status
+ }
+]
+```
+- [GET] `v1/events/{:id}`
+```
+{
+ id: int
+ name: string
+ title: sttring
+ start_at: time
+ end_at: time
+ banner: string
+ location: string
+ status: string
+ ticket_types [
+   {
+     id: string
+     position: int
+     name: string
+     description: string
+     image_url: string
+     status: string
+     number_seats: int
+     price: int
+   }
+ ]
+}
+```
+#### Database Schema Desgin 
+`events`
+- id
+- name
+- title
+- start_at
+- end_at
+- banner
+- location
+- status
+- created_at
+- updated_at
 
+`ticket_types`
+- id
+- event_id
+- position
+- name
+- description
+- imageUrl
+- status
+- qty
+- price
+- currency
+- sale_at
+- sale_end
+- created_at
+- updated_at
+- 
 # CDC Service
 - Considering ...
 # Saga 
 ## Choreography Pattern
 ### Useccase
-- A customer places an order in OrderService.
-- OrderService saves the order and emits an OrderPlacedEvent.
+- A customer places an order in BookingService.
+<!-- - OrderService saves the order and emits an OrderPlacedEvent.
 - InventoryService listens for OrderPlacedEvent, and once it catches this event, it checks and reserves the stock. If stock is reserved successfully, it emits a StockReservedEvent.
 - If stock isn't available, it emits a StockUnavailableEvent.
 PaymentService listens for StockReservedEvent. Once it catches this event, it charges the customer.
 - If payment is successful, it emits a PaymentSuccessEvent.
 - If payment fails, it emits a PaymentFailedEvent.
 OrderService listens for PaymentSuccessEvent and PaymentFailedEvent to update the order status accordingly.
-- NotificationService listens to various events to notify the customer at different stages.
+- NotificationService listens to various events to notify the customer at different stages. -->
 ### Event 
-#### OrderService 
-- OrderPending
-- OrderCreated 
-- OrderRejected
+#### BookingrService 
+- BookingOrdered
+- BookingConfirmed
+- BookingFailed
+#### PaymentSerivce
+- PaymentSucceeded
+- PaymenFailed
 #### TicketService 
 - TicketPending 
 - TicketCreated
 - TicketRejected
-#### PaymentSerivce
-- PaymentPending
-- PaymentCreated 
-- PaymentRejectted
 ### NotificationService 
 - NotiPending 
 - NotiCreated
@@ -294,7 +384,13 @@ protoc --go_out=./proto/gen --go_opt=paths=source_relative \
     --proto_path=proto \
     ./proto/user.proto
 ```
-
+#### 2. payment-service 
+```
+protoc --go_out=./proto/gen --go_opt=paths=source_relative \
+    --go-grpc_out=./proto/gen --go-grpc_opt=paths=source_relative \
+    --proto_path=proto \
+    ./proto/payment.proto
+```
 ## Testing 
 #### GRPC
 https://ghz.sh/ 

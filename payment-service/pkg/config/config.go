@@ -4,6 +4,8 @@ import (
 	"log"
 	"sync"
 
+	sharedCfg "ms-practice/pkg/config"
+
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -14,8 +16,9 @@ var (
 )
 
 type Config struct {
+	sharedCfg.App
 	Kafka struct {
-		Brokers []string `envconfig:"KAFKA_BROKERS"`
+		Brokers []string `envconfig:"KAFKA_BROKERS" default:"localhost:9092"`
 	}
 }
 

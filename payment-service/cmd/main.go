@@ -2,16 +2,34 @@ package main
 
 import (
 	"context"
-	"log"
+	"os"
+	"os/signal"
+	"sync"
 
-	"payment-service/pkg/consumer"
-	"payment-service/pkg/container"
+	"ms-practice/payment-service/pkg/container"
+	grpc_handler "ms-practice/payment-service/pkg/handler/grpc"
 )
 
 func main() {
+	// test()
 	c := container.InitializeContainer()
-	ctx := context.Background()
-	if err := consumer.NewPaymentConsumer(c.Kafka).Start(ctx); err != nil && err != context.Canceled {
-		log.Fatal(err)
-	}
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer stop()
+	var wg sync.WaitGroup
+	// Run HTTP Server
+	// wg.Add(1)
+	// go func() {
+	// 	defer wg.Done()
+	// 	http_handler.StartHTTPServer(c, ctx)
+	// }()
+
+	// Run GRPC Server
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		grpc_handler.StartGRPCUserServiceServer(c, ctx)
+	}()
+	<-ctx.Done()
+	wg.Wait()
 }

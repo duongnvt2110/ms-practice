@@ -1,9 +1,9 @@
 package http_handler
 
 import (
-	"booking-service/pkg/container"
 	"context"
 	"log"
+	"ms-practice/booking-service/pkg/container"
 	"net/http"
 	"os"
 	"os/signal"
@@ -22,7 +22,7 @@ func StartHTTPServer(c *container.Container) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      h,
 	}
-	SetRoutes(h, c.Cfg, c.Kafka)
+	SetRoutes(h, c.Cfg, c.Usecases)
 	// http_middleware.SetMiddleware(h)
 	go func() {
 		log.Printf("Server is running on http://%s", c.Cfg.App.Host)
