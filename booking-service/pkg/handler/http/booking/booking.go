@@ -14,14 +14,14 @@ import (
 func (h *bookingHandler) GetBookings(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	var userID int
+	var userID *int
 	if userIDParam := c.Query("user_id"); userIDParam != "" {
 		id, err := strconv.Atoi(userIDParam)
 		if err != nil {
 			response.ResponseWithError(c, apperror.ErrBadRequest.Wrap(err))
 			return
 		}
-		userID = id
+		userID = &id
 	}
 
 	bookings, err := h.bookingUC.ListBookings(ctx, userID)
@@ -64,9 +64,12 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	}
 
 	booking := &model.Booking{
-		EventId:  req.EventID,
-		Quantity: req.Quantity,
-		Prices:   req.Prices,
+		UserId:      req.UserID,
+		EventId:     req.EventID,
+		BookingCode: req.BookingCode,
+		Status:      req.Status,
+		TotalPrice:  req.TotalPrice,
+		Logs:        req.Logs,
 	}
 
 	if headerKey := c.GetHeader("Idempotency-Key"); headerKey != "" {
@@ -75,10 +78,9 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 
 	for _, item := range req.Items {
 		booking.Items = append(booking.Items, model.BookingItem{
-			EventTypeId: item.EventTypeID,
-			Qty:         item.Quantity,
-			UnitPrice:   item.UnitPrice,
-			Currency:    item.Currency,
+			TicketTypeId: item.TicketTypeID,
+			Qty:          item.Quantity,
+			Price:        item.Price,
 		})
 	}
 	result, err := h.bookingUC.CreateBooking(ctx, booking)

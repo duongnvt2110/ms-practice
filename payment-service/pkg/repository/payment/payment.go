@@ -22,10 +22,13 @@ func NewPaymentRepo(db *gorm.DB) PaymentRepoInterface {
 }
 
 func (r *paymentRepo) GetPayment(ctx context.Context, userID int32, paymentID int32) (*model.Payment, error) {
-	var booking model.Payment
-	err := r.db.WithContext(ctx).Preload("PaymentHistories").First(&booking).Error
+	var payment model.Payment
+	err := r.db.WithContext(ctx).
+		Preload("PaymentHistories").
+		Where("user_id = ? AND id = ?", userID, paymentID).
+		First(&payment).Error
 	if err != nil {
 		return nil, err
 	}
-	return &booking, nil
+	return &payment, nil
 }

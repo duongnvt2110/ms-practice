@@ -22,18 +22,18 @@ https://systemdesignschool.io/problems/ticketmaster/solution
 
 # Services 
 ## List
-| No. | Service Name      | Directory Name     | Host      | Port | Description |
-| --- | ----------------- | ------------------ | --------- | ---- | ----------- |
-| 1   | API Gateway       | api-gatewa-service | localhost | 8000 |             |
-| 2   | Auth Service      | auth-service       | localhost | 8001 |             |
-| 3   | User Service      | user-serivce       | localhost | 8002 |             |
-| 4   | Ticket Service    | ticket-service     | localhost | 8003 |             |
-| 5   | Booking Service   | order-serivce      | localhost | 8004 |             |
-| 6   | Payment Service   | payment-serivce    | localhost | 8005 |             |
-| 8   | Noti Service      | noti-serivce       | localhost | 8006 |             |
-| 9   | Catalog Service   | catalog-service    | localhost | 8007 |             |
-| 11  | FrontEnd          | Frontend           | localhost | 8888 |             |
-### Overrall the flow 
+| No. | Service Name    | Directory Name     | Host      | Port | Description |
+| --- | --------------- | ------------------ | --------- | ---- | ----------- |
+| 1   | API Gateway     | api-gatewa-service | localhost | 8000 |             |
+| 2   | Auth Service    | auth-service       | localhost | 8001 |             |
+| 3   | User Service    | user-serivce       | localhost | 8002 |             |
+| 4   | Ticket Service  | ticket-service     | localhost | 8003 |             |
+| 5   | Booking Service | booking-serivce    | localhost | 8004 |             |
+| 6   | Payment Service | payment-serivce    | localhost | 8005 |             |
+| 8   | Noti Service    | noti-serivce       | localhost | 8006 |             |
+| 9   | Catalog Service | catalog-service    | localhost | 8007 |             |
+| 11  | FrontEnd        | Frontend           | localhost | 8888 |             |
+### Overral the flow 
 - User authenticate though by the AuthService and get user's information by User Service.
 - User -> Choose the events -> choose the position of seats (optinal) ->  input the number of seats -> proceed booking the tickets -> confirm the booking information -> select the payment method -> payment proceed.
 ## Detail

@@ -35,7 +35,10 @@ func (r *bookingRepository) Create(ctx context.Context, booking *model.Booking) 
 
 func (r *bookingRepository) GetByID(ctx context.Context, id int) (*model.Booking, error) {
 	var booking model.Booking
-	err := r.db.WithContext(ctx).Preload("Items").First(&booking, id).Error
+	err := r.db.WithContext(ctx).
+		Preload("Items").
+		Preload("BookingUsers").
+		First(&booking, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +47,11 @@ func (r *bookingRepository) GetByID(ctx context.Context, id int) (*model.Booking
 
 func (r *bookingRepository) GetByIdempotencyKey(ctx context.Context, key string) (*model.Booking, error) {
 	var booking model.Booking
-	err := r.db.WithContext(ctx).Preload("Items").Where("idempotency_key = ?", key).First(&booking).Error
+	err := r.db.WithContext(ctx).
+		Preload("Items").
+		Preload("BookingUsers").
+		Where("idempotency_key = ?", key).
+		First(&booking).Error
 	if err != nil {
 		return nil, err
 	}
@@ -53,9 +60,13 @@ func (r *bookingRepository) GetByIdempotencyKey(ctx context.Context, key string)
 
 func (r *bookingRepository) List(ctx context.Context, userID *int) ([]model.Booking, error) {
 	var bookings []model.Booking
-	query := r.db.WithContext(ctx).Model(&model.Booking{}).Preload("Items").Order("created_at DESC")
+	query := r.db.WithContext(ctx).
+		Model(&model.Booking{}).
+		Preload("Items").
+		Preload("BookingUsers").
+		Order("created_at DESC")
 	if userID != nil {
-		query = query.Where("user_id = ?", userID)
+		query = query.Where("user_id = ?", *userID)
 	}
 	err := query.Find(&bookings).Error
 	if err != nil {
