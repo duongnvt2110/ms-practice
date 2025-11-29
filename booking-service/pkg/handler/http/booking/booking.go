@@ -4,7 +4,7 @@ import (
 	"errors"
 	"ms-practice/booking-service/pkg/model"
 	apperror "ms-practice/booking-service/pkg/util/app_error"
-	"ms-practice/booking-service/pkg/util/response"
+	response "ms-practice/pkg/http/gin"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -79,7 +79,7 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	for _, item := range req.Items {
 		booking.Items = append(booking.Items, model.BookingItem{
 			TicketTypeId: item.TicketTypeID,
-			Qty:          item.Quantity,
+			Qty:          item.Qty,
 			Price:        item.Price,
 		})
 	}

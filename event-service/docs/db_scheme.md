@@ -1,0 +1,27 @@
+- events
+  - id
+  - name
+  - title
+  - start_at
+  - end_at
+  - banner
+  - location
+  - status
+  - created_at
+  - updated_at
+
+- ticket_types
+  - id
+  - event_id
+  - position
+  - name
+  - description
+  - imageUrl
+  - status
+  - qty
+  - price
+  - currency
+  - sale_at
+  - sale_end
+  - created_at
+  - updated_at

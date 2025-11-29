@@ -1,0 +1,12 @@
+-  users
+  - id 
+  - email
+  - username
+  - birth_day
+  - avatar
+  - mobile_number
+  - created_at
+  - updated_at
+- user_settings
+   - id
+   - allow_noti

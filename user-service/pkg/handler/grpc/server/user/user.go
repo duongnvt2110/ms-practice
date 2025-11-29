@@ -28,23 +28,23 @@ func (h *UserHandler) GetUser(ctx context.Context, req *gen.GetUserRequest) (*ge
 
 	return &gen.GetUserResponse{
 		User: &gen.User{
-			Id:          int32(user.Id),
-			Email:       user.Email,
-			FirstName:   user.FirstName,
-			LastName:    user.LastName,
-			Birthday:    user.Birthday,
-			PhoneNumber: user.PhoneNumber,
+			Id:           int32(user.Id),
+			Email:        user.Email,
+			Username:     user.Username,
+			Avatar:       user.Avatar,
+			Birthday:     user.Birthday,
+			MobileNumber: user.MobileNumber,
 		},
 	}, nil
 }
 
 func (h *UserHandler) CreateUser(ctx context.Context, req *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
 	user := &models.User{
-		Email:       req.Email,
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		Birthday:    req.Birthday,
-		PhoneNumber: req.PhoneNumber,
+		Email:        req.Email,
+		Username:     req.Username,
+		Avatar:       req.Avatar,
+		Birthday:     req.Birthday,
+		MobileNumber: req.MobileNumber,
 	}
 
 	id, err := h.usecase.CreateUser(ctx, user)
@@ -53,6 +53,10 @@ func (h *UserHandler) CreateUser(ctx context.Context, req *gen.CreateUserRequest
 	}
 
 	return &gen.CreateUserResponse{Id: id}, nil
+}
+
+func (h *UserHandler) DeleteUser(ctx context.Context, req *gen.DeleteUserRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, h.usecase.DeleteUser(ctx, req.Id)
 }
 
 func (h *UserHandler) TestGracefulShutdown(context.Context, *emptypb.Empty) (*emptypb.Empty, error) {

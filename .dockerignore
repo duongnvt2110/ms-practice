@@ -1,2 +1,37 @@
-**/build/db
-/node_modules
+# Git
+.git
+.gitignore
+
+# Node
+node_modules/
+**/node_modules/
+
+# Build output
+build/
+**/build/
+dist/
+bin/
+coverage/
+
+# Temp
+tmp/
+**/tmp/
+cache/
+logs/
+
+# Go cache
+*.out
+*.exe
+
+# OS & IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Docker
+Dockerfile*
+docker-compose*
+
+# Env files
+.env
+.env.*

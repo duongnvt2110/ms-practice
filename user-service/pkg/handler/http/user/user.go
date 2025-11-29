@@ -1,48 +1,60 @@
 package user
 
 import (
+	"errors"
+	response "ms-practice/pkg/http/mux"
 	apperror "ms-practice/user-service/pkg/utils/app_error"
-	"ms-practice/user-service/pkg/utils/response"
 	"net/http"
 	"strconv"
 
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
-func (h *userHandler) GetUsers(w http.ResponseWriter, r *http.Request) {
-	user := []struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}{
-		{
-			ID:   "123",
-			Name: "Test",
-		},
-		{
-			ID:   "123232",
-			Name: "Test3",
-		},
+func (h *userHandler) GetMe(w http.ResponseWriter, r *http.Request) {
+	idValue := r.Header.Get("X-User-ID")
+	if idValue == "" {
+		idValue = r.URL.Query().Get("user_id")
+	}
+	if idValue == "" {
+		response.ResponseWithError(w, apperror.ErrBadRequest.Wrap(errors.New("user id is required")))
+		return
+	}
+	id, err := strconv.Atoi(idValue)
+	if err != nil {
+		response.ResponseWithError(w, apperror.ErrBadRequest.Wrap(err))
+		return
+	}
+
+	user, err := h.userUC.GetUser(r.Context(), int32(id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.ResponseWithError(w, apperror.ErrNotFound.Wrap(err))
+			return
+		}
+		response.ResponseWithError(w, apperror.ErrInternalServer.Wrap(err))
+		return
 	}
 	response.ResponseWithSuccess(w, user)
-
 }
 
 func (h *userHandler) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-
-	// Retrieve the `id` from the route
-	id := vars["id"]
-	user := struct {
-		ID   string `json:"id"`
-		Name string `json:"name"`
-	}{
-		ID:   id,
-		Name: "Test",
-	}
-	userId, err := strconv.Atoi(id)
+	idParam := vars["id"]
+	id, err := strconv.Atoi(idParam)
 	if err != nil {
-		response.ResponseWithError(w, apperror.ErrInternalServer.Origin(err))
+		response.ResponseWithError(w, apperror.ErrBadRequest.Wrap(err))
+		return
 	}
-	h.userUC.GetUser(r.Context(), int32(userId))
+
+	user, err := h.userUC.GetUser(r.Context(), int32(id))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			response.ResponseWithError(w, apperror.ErrNotFound.Wrap(err))
+			return
+		}
+		response.ResponseWithError(w, apperror.ErrInternalServer.Wrap(err))
+		return
+	}
 	response.ResponseWithSuccess(w, user)
 }

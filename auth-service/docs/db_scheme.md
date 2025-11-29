@@ -1,0 +1,14 @@
+-  auth_profiles
+  - id 
+  - email
+  - username
+  - password (hashing)
+  - created_at
+  - updated_at
+- auth_refresh_tokens
+  - id
+  - auth_profile_id
+  - token
+  - expired_at
+  - creatd_at
+  - updated_at

@@ -1,0 +1,18 @@
+- [Get] `v1/payments`
+  - Description
+    - Get list users
+  - Request
+    - Query params 
+      - next_token 
+      - previous_token
+  - Response
+    - list user
+- [GET] `v1/payments/{id}`
+  - Description
+    - Get user by id
+  - Response
+    - list user
+- [POST] `v1/payments`
+  - Request body:
+    - order_id
+    - price

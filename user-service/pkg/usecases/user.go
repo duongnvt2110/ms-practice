@@ -9,6 +9,7 @@ import (
 type UserUsecase interface {
 	GetUser(ctx context.Context, id int32) (*models.User, error)
 	CreateUser(ctx context.Context, user *models.User) (int32, error)
+	DeleteUser(ctx context.Context, userID int32) error
 }
 
 type userUsecase struct {
@@ -25,4 +26,8 @@ func (u *userUsecase) GetUser(ctx context.Context, id int32) (*models.User, erro
 
 func (u *userUsecase) CreateUser(ctx context.Context, user *models.User) (int32, error) {
 	return u.userRepo.CreateUser(ctx, user)
+}
+
+func (u *userUsecase) DeleteUser(ctx context.Context, userID int32) error {
+	return u.userRepo.DeleteUser(ctx, userID)
 }

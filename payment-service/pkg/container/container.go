@@ -17,7 +17,7 @@ type Container struct {
 func InitializeContainer() *Container {
 	cfg := config.NewConfig()
 	// Initialize dependencies
-	db, err := gorm_client.NewGormClient(cfg.Mysql.PrimaryHosts, cfg.Mysql.ReadHosts, cfg.Mysql.User, cfg.Mysql.Password, cfg.Mysql.Port, cfg.Mysql.DBName)
+	db, err := gorm_client.NewGormClient(cfg.Mysql)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

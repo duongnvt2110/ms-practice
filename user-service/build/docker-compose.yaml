@@ -1,11 +1,14 @@
+name: ms-practie
 services:
   user-service:
     build:
       context: ../../
       dockerfile: user-service/build/Dockerfile
+      platforms:
+      - "linux/amd64"
     ports:
       - 8002:3000
-      - 50001:50051
+      - 50001:50001
     env_file:
       - .local.env
     volumes:

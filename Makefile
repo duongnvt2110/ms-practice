@@ -1,13 +1,38 @@
 DOCKER_COMPOSE ?= docker compose
-SERVICES ?= api-gateway-service auth-service user-service booking-service payment-service catalog-service ticket-service
-COMPOSE_FILES := $(addsuffix /build/docker-compose.yaml,$(SERVICES))
+DOCKER_SYSTEM_PRUNE ?= docker system prune
+
+SERVICES := \
+	api-gateway-service \
+	auth-service \
+	user-service \
+	booking-service \
+	payment-service \
+	event-service \
+	ticket-service \
+	utils-service
+
+# COMPOSE_api-gateway-service := api-gateway-service/build/docker-compose.yaml
+COMPOSE_auth-service := auth-service/build/docker-compose.yaml
+COMPOSE_user-service := user-service/build/docker-compose.yaml
+COMPOSE_booking-service := booking-service/build/docker-compose.yaml
+COMPOSE_payment-service := payment-service/build/docker-compose.yaml
+COMPOSE_event-service := event-service/build/docker-compose.yaml
+COMPOSE_ticket-service := ticket-service/build/docker-compose.yaml
+COMPOSE_utils-service := utils-service/docker-compose.yaml
+
+COMPOSE_VARS := $(filter COMPOSE_%,$(.VARIABLES))
+
+SERVICES := $(patsubst COMPOSE_%,%,$(COMPOSE_VARS))
+
+COMPOSE_FILES := $(foreach service,$(SERVICES),$(COMPOSE_$(service)))
 
 .PHONY: up down restart up-% down-% logs-% status
 
 up:
 	@$(foreach file,$(COMPOSE_FILES), \
 		echo "Starting services defined in $(file)"; \
-		$(DOCKER_COMPOSE) -f $(file) up -d --build || exit $$?; )
+		$(DOCKER_COMPOSE) -f $(file) up -d --build || exit $$?; ) \
+		$(DOCKER_SYSTEM_PRUNE)
 
 down:
 	@$(foreach file,$(COMPOSE_FILES), \
@@ -19,13 +44,18 @@ down:
 restart: down up
 
 up-%:
-	$(DOCKER_COMPOSE) -f $*/build/docker-compose.yaml up -d --build
+	$(eval COMPOSE_FILE := $(COMPOSE_$*))
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) up -d --build
+	$(DOCKER_SYSTEM_PRUNE)
 
 down-%:
-	$(DOCKER_COMPOSE) -f $*/build/docker-compose.yaml down --remove-orphans
+	$(eval COMPOSE_FILE := $(COMPOSE_$*))
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) down --remove-orphans
+	$(DOCKER_SYSTEM_PRUNE)
 
 logs-%:
-	$(DOCKER_COMPOSE) -f $*/build/docker-compose.yaml logs -f
+	$(eval COMPOSE_FILE := $(COMPOSE_$*))
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) logs -f
 
 status:
 	@$(foreach file,$(COMPOSE_FILES), \
@@ -34,3 +64,8 @@ status:
 			$(DOCKER_COMPOSE) -f $(file) ps; \
 			echo ""; \
 		fi; )
+
+exec-%:
+	$(eval COMPOSE_FILE := $(COMPOSE_$*))
+	$(eval SERVICE := $*)
+	$(DOCKER_COMPOSE) -f $(COMPOSE_FILE) exec $(SERVICE) sh

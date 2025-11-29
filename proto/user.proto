@@ -10,10 +10,10 @@ option go_package = "ms-practice/proto/gen";
 message User {
     int32 id = 1;
     string email = 2;
-    string first_name = 3;
-    string last_name = 4;
+    string username = 3;
+    string avatar = 4;
     string birthday = 5;
-    string phone_number = 6;
+    string mobile_number = 6;
 }
 
 message GetUserRequest {
@@ -26,18 +26,23 @@ message GetUserResponse {
 
 message CreateUserRequest {
     string email = 1;
-    string first_name = 2;
-    string last_name = 3;
+    string username = 2;
+    string avatar = 3;
     string birthday = 4;
-    string phone_number = 5;
+    string mobile_number = 5;
 }
 
 message CreateUserResponse {
     int32 id = 1;
 }
 
+message DeleteUserRequest {
+    int32 id = 1;
+}
+
 service UserService {
     rpc GetUser(GetUserRequest) returns (GetUserResponse);
     rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+    rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
     rpc TestGracefulShutdown(google.protobuf.Empty) returns (google.protobuf.Empty);
 }

@@ -3,7 +3,9 @@ package model
 import "time"
 
 const (
-	BookingStatusPending = "pending"
+	BookingStatusPending   = "pending"
+	BookingStatusConfirmed = "confirmed"
+	BookingStatusFailed    = "failed"
 )
 
 type Booking struct {
@@ -13,7 +15,9 @@ type Booking struct {
 	EventId        int           `gorm:"column:event_id" json:"event_id"`
 	BookingCode    string        `gorm:"column:booking_code" json:"booking_code"`
 	HoldedAt       time.Time     `gorm:"column:holded_at" json:"holded_at"`
+	ExpiredAt      *time.Time    `gorm:"column:expired_at" json:"expired_at,omitempty"`
 	Status         string        `gorm:"column:status" json:"status"`
+	NumberSeats    int           `gorm:"column:number_seats" json:"number_seats"`
 	TotalPrice     int           `gorm:"column:total_price" json:"total_price"`
 	Logs           string        `gorm:"column:logs" json:"logs"`
 	Items          []BookingItem `gorm:"foreignKey:BookingId;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"items,omitempty"`

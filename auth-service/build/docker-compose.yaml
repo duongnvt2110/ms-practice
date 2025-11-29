@@ -1,8 +1,11 @@
+name: ms-practie
 services:
   auth-service:
     build:
       context: ../../
       dockerfile: auth-service/build/Dockerfile
+      platforms:
+        - "linux/amd64"
     ports:
       - 8001:3000
     env_file:

@@ -10,7 +10,7 @@ import (
 
 func SetRoutes(r *gin.Engine, cfg *config.Config, usecases *usecase.Usecase) {
 	bookingHandler := booking.NewBookingHandler(cfg, usecases.BookingUC)
-	bookingGroup := r.Group("bookings")
+	bookingGroup := r.Group("/v1/bookings")
 	{
 		bookingGroup.GET("", bookingHandler.GetBookings)
 		bookingGroup.GET("/:id", bookingHandler.GetBooking)

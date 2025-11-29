@@ -27,34 +27,52 @@ func (h *PaymentHandler) GetPayment(ctx context.Context, req *gen.GetPaymentRequ
 
 	return &gen.GetPaymentResponse{
 		Payment: &gen.Payment{
-			Id:             int32(payment.Id),
-			UserId:         int32(payment.UserId),
-			BookingId:      int32(payment.BookingID),
-			Prices:         float32(payment.Prices),
-			CreatedAt:      timestamppb.New(payment.CreatedAt),
-			UpdatedAt:      timestamppb.New(payment.UpdatedAt),
-			PaymentHistory: toProtoPaymentHistory(payment.PaymentHistories),
+			Id:               int32(payment.Id),
+			IdempotencyKey:   payment.IdempotencyKey,
+			PaymentCode:      payment.PaymentCode,
+			UserId:           int32(payment.UserId),
+			BookingId:        int32(payment.BookingID),
+			TransactionId:    payment.TransactionID,
+			Amount:           int32(payment.Amount),
+			Status:           payment.Status,
+			Provider:         payment.Provider,
+			PaidAt:           toProtoTimestamp(payment.PaidAt),
+			CreatedAt:        timestamppb.New(payment.CreatedAt),
+			UpdatedAt:        timestamppb.New(payment.UpdatedAt),
+			PaymentHistories: toProtoPaymentHistories(payment.PaymentHistories),
 		},
 	}, nil
 }
 
-func toProtoPaymentHistory(histories []model.PaymentHistory) *gen.PaymentHistory {
+func toProtoPaymentHistories(histories []model.PaymentHistory) []*gen.PaymentHistory {
 	if len(histories) == 0 {
 		return nil
 	}
-	history := histories[0]
-	var paidAt string
-	if history.PaidAt != nil {
-		paidAt = history.PaidAt.Format(time.RFC3339)
+	result := make([]*gen.PaymentHistory, 0, len(histories))
+	for _, history := range histories {
+		result = append(result, &gen.PaymentHistory{
+			Id:        int32(history.Id),
+			PaymentId: int32(history.PaymentID),
+			Status:    history.Status,
+			Logs:      history.Logs,
+			PaidAt:    formatTime(history.PaidAt),
+			CreatedAt: timestamppb.New(history.CreatedAt),
+			UpdatedAt: timestamppb.New(history.UpdatedAt),
+		})
 	}
+	return result
+}
 
-	return &gen.PaymentHistory{
-		Id:        int32(history.Id),
-		PaymentId: int32(history.PaymentID),
-		Status:    history.Status,
-		Logs:      history.Logs,
-		PaidAt:    paidAt,
-		CreatedAt: timestamppb.New(history.CreatedAt),
-		UpdatedAt: timestamppb.New(history.UpdatedAt),
+func toProtoTimestamp(t *time.Time) *timestamppb.Timestamp {
+	if t == nil {
+		return nil
 	}
+	return timestamppb.New(*t)
+}
+
+func formatTime(t *time.Time) string {
+	if t == nil {
+		return ""
+	}
+	return t.Format(time.RFC3339)
 }

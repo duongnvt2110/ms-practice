@@ -10,5 +10,4 @@ func main() {
 	c := container.InitializeContainer()
 	// // Run HTTP Server
 	http_handler.StartHTTPServer(c)
-	// select {}
 }

@@ -1,3 +1,4 @@
+name: ms-practie
 services:
   ticket-service:
     build:
@@ -22,6 +23,6 @@ services:
       MYSQL_PASSWORD: admin
       MYSQL_DATABASE: ticket_service
     ports:
-      - "3371:3306"
+      - "3369:3306"
     volumes:
       - ./db:/var/lib/mysql

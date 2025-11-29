@@ -1,0 +1,7 @@
+- [GET] `v1/users/me`
+ - id
+ - email
+ - username
+ - avatar
+ - brithday
+ - user_settings

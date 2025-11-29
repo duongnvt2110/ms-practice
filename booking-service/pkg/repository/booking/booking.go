@@ -12,6 +12,7 @@ type BookingRepository interface {
 	GetByID(ctx context.Context, id int) (*model.Booking, error)
 	GetByIdempotencyKey(ctx context.Context, key string) (*model.Booking, error)
 	List(ctx context.Context, userID *int) ([]model.Booking, error)
+	UpdateStatus(ctx context.Context, bookingID int, status string) error
 }
 
 type bookingRepository struct {
@@ -73,4 +74,11 @@ func (r *bookingRepository) List(ctx context.Context, userID *int) ([]model.Book
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func (r *bookingRepository) UpdateStatus(ctx context.Context, bookingID int, status string) error {
+	return r.db.WithContext(ctx).
+		Model(&model.Booking{}).
+		Where("id = ?", bookingID).
+		Update("status", status).Error
 }

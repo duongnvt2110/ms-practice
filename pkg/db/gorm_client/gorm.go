@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"ms-practice/pkg/config"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -13,26 +15,26 @@ import (
 )
 
 // NewGormClient initializes a GORM DB instance with multiple sources and replicas
-func NewGormClient(
-	primaryHosts []string, readHosts []string,
-	dbUser, dbPassword, dbPort, dbName string,
-) (*gorm.DB, error) {
+func NewGormClient(mysqlCfg config.Mysql) (*gorm.DB, error) {
 	// Load database config from environment variables
 	// Build DSNs for primaries and replicas
 	var primaryDialectors []gorm.Dialector
-	for _, host := range primaryHosts {
+	for _, host := range mysqlCfg.PrimaryHosts {
 		if host != "" {
 			primaryDialectors = append(primaryDialectors, mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-				dbUser, dbPassword, host, dbPort, dbName)))
+				mysqlCfg.User, mysqlCfg.Password, host, mysqlCfg.Port, mysqlCfg.DBName)))
 		}
 	}
 
 	var readDialectors []gorm.Dialector
-	for _, host := range readHosts {
+	for _, host := range mysqlCfg.ReplicaHots {
 		if host != "" {
 			readDialectors = append(readDialectors, mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-				dbUser, dbPassword, host, dbPort, dbName)))
+				mysqlCfg.User, mysqlCfg.Password, host, mysqlCfg.Port, mysqlCfg.DBName)))
 		}
+	}
+	if len(primaryDialectors) == 0 {
+		return nil, fmt.Errorf("no primary hosts configured for mysql")
 	}
 
 	// Configure GORM logging

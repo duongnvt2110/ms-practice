@@ -2,9 +2,9 @@
 CREATE TABLE
   auth_refresh_tokens (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    token TEXT NOT NULL,
-    expires_at TIMESTAMP NOT NULL,
+    auth_profile_id INT NOT NULL,
+    refresh_token TEXT NOT NULL,
+    expired_at TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );

@@ -1,3 +1,4 @@
+name: ms-practie
 services:
   payment-service:
     build:
@@ -29,6 +30,6 @@ services:
       MYSQL_PASSWORD: admin
       MYSQL_DATABASE: payment_service
     ports:
-      - "3368:3306"
+      - "3370:3306"
     volumes:
       - ./db:/var/lib/mysql

@@ -24,7 +24,7 @@ func InitializeContainer() *Container {
 	// Initialize dependencies
 	cfg := config.NewConfig()
 	validate := svalidate.NewValidate()
-	dbClient, err := gorm_client.NewGormClient(cfg.Mysql.PrimaryHosts, cfg.Mysql.ReadHosts, cfg.Mysql.User, cfg.Mysql.Password, cfg.Mysql.Port, cfg.Mysql.DBName)
+	dbClient, err := gorm_client.NewGormClient(cfg.Mysql)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

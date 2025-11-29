@@ -10,6 +10,7 @@ import (
 type UserRepository interface {
 	GetUserByID(ctx context.Context, id int32) (*models.User, error)
 	CreateUser(ctx context.Context, user *models.User) (int32, error)
+	DeleteUser(ctx context.Context, userID int32) error
 }
 
 type userRepository struct {
@@ -22,7 +23,10 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (r *userRepository) GetUserByID(ctx context.Context, id int32) (*models.User, error) {
 	var user models.User
-	err := r.db.WithContext(ctx).Where("id = ?", id).First(&user).Error
+	err := r.db.WithContext(ctx).
+		Preload("Settings").
+		Where("id = ?", id).
+		First(&user).Error
 	if err != nil {
 		return nil, err
 	}
@@ -35,4 +39,8 @@ func (r *userRepository) CreateUser(ctx context.Context, user *models.User) (int
 		return 0, err
 	}
 	return user.Id, nil
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, userID int32) error {
+	return r.db.WithContext(ctx).Delete(&models.User{}, userID).Error
 }

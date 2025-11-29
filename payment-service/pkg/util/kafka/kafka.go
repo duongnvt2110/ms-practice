@@ -1,7 +1,8 @@
 package kafka
 
 import (
-	"ms-practice/payment-service/pkg/event"
+	"ms-practice/pkg/config"
+	"ms-practice/pkg/event"
 	sharedKafaka "ms-practice/pkg/kafka"
 	"sync"
 )
@@ -11,42 +12,59 @@ var (
 	bookingMessaging *BookingMessaging
 )
 
-type BookingMessaging struct {
-	Consumers map[event.Consumer]sharedKafaka.KafkaClient
-	Producers map[event.Producer]sharedKafaka.KafkaClient
+var topics = []event.Topic{
+	{
+		Name:           event.PaymentTopicName,
+		EnableProducer: true,
+	},
+	{
+		Name:           event.BookingTopicName,
+		GroupID:        "payment-booking-consumer",
+		EnableConsumer: true,
+	},
 }
 
-func NewBookingKafkaClient(kafkaClient sharedKafaka.KafkaClient) *BookingMessaging {
+type BookingMessaging struct {
+	Consumers map[string]sharedKafaka.KafkaClient
+	Producers map[string]sharedKafaka.KafkaClient
+	cfg       *config.Kafka
+}
+
+func NewBookingKafkaClient(cfg *config.Kafka) *BookingMessaging {
 	bookingMessaging = &BookingMessaging{
-		Consumers: make(map[event.Consumer]sharedKafaka.KafkaClient),
-		Producers: make(map[event.Producer]sharedKafaka.KafkaClient),
+		Consumers: make(map[string]sharedKafaka.KafkaClient),
+		Producers: make(map[string]sharedKafaka.KafkaClient),
+		cfg:       cfg,
 	}
 	cfgOnce.Do(func() {
-		initalizeKafkaConnection(kafkaClient, bookingMessaging)
+		initalizeKafkaConnection(bookingMessaging)
 	})
 	return bookingMessaging
 }
 
-func initalizeKafkaConnection(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
-	initializeProducer(kafkaClient, k)
-	initializeConsumer(kafkaClient, k)
+func initalizeKafkaConnection(k *BookingMessaging) {
+	initializeProducer(k)
+	initializeConsumer(k)
 }
 
-func initializeProducer(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
-	for _, topic := range event.BookingTopic {
-		if topic.Enable {
-			topicName := event.Producer(topic.ProducerName)
-			k.Producers[topicName] = kafkaClient.SetWriterTopic(string(topicName))
+func initializeProducer(k *BookingMessaging) {
+	for _, topic := range topics {
+		if topic.EnableProducer {
+			client := sharedKafaka.NewKafkaClient(k.cfg).SetWriterTopic(topic.Name)
+			k.Producers[topic.Name] = client
 		}
 	}
 }
 
-func initializeConsumer(kafkaClient sharedKafaka.KafkaClient, k *BookingMessaging) {
-	for _, topic := range event.BookingTopic {
-		if topic.Enable {
-			topicName := event.Producer(topic.ProducerName)
-			consumerName := event.Consumer(topic.ConsumerName)
-			k.Consumers[consumerName] = kafkaClient.SetReaderTopic(string(topicName), string(topic.GroupID))
+func initializeConsumer(k *BookingMessaging) {
+	for _, topic := range topics {
+		if topic.EnableConsumer {
+			group := topic.GroupID
+			if group == "" {
+				group = topic.Name + "-group"
+			}
+			client := sharedKafaka.NewKafkaClient(k.cfg).SetReaderTopic(topic.Name, group)
+			k.Consumers[topic.Name] = client
 		}
 	}
 }

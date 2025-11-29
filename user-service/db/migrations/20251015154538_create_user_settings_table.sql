@@ -2,7 +2,10 @@
 CREATE TABLE
   user_settings (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    allow_noti BOOLEAN,
+    user_id INT NOT NULL,
+    allow_noti BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
 
 -- migrate:down

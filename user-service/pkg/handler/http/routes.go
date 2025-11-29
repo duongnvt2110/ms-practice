@@ -13,9 +13,9 @@ import (
 
 func SetRoutes(r *mux.Router, c *container.Container) {
 	userHandler := user.NewUserHandler(c.Cfg, *c.Usecase)
-	r.HandleFunc("/users", userHandler.GetUsers).Methods("GET")
-	r.HandleFunc("/users/{id}", userHandler.GetUser).Methods("GET")
-	r.HandleFunc("/users", userHandler.GetUser).Methods("POST")
+	userRoutes := r.PathPrefix("/v1/users").Subrouter()
+	userRoutes.HandleFunc("/me", userHandler.GetMe).Methods("GET")
+	userRoutes.HandleFunc("/{id:[0-9]+}", userHandler.GetUser).Methods("GET")
 	r.HandleFunc("/test", func(w http.ResponseWriter, r *http.Request) {
 		time.Sleep(10 * time.Second)
 		log.Println("testGracefulShutdown job completed")

@@ -1,0 +1,18 @@
+- [GET] `v1/tickets`
+  - Description
+    - Get list tickets
+  - Request
+    - Query params 
+      - next_token 
+      - previous_token
+  - Response
+    - list user
+- [GET] `v1/tickets/{id}`
+  - Description
+    - Get ticket details
+  - Response
+    - list user
+- [PUT] `v1/tickets/{id}` -> CMS
+  - Description
+    - Update ticket info
+  - Request body:

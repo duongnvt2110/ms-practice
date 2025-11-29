@@ -9,11 +9,11 @@ import (
 type AuthProfile struct {
 	Id        int       `gorm:"column:id" json:"id"`
 	Email     string    `gorm:"column:email" json:"email"`
+	Username  string    `gorm:"column:username" json:"username"`
 	Password  string    `gorm:"column:password" json:"password"`
 	CreatedAt time.Time `gorm:"column:created_at" json:"-"`
 	UpdatedAt time.Time `gorm:"column:updated_at" json:"-"`
 }
-
 
 type TokenPair struct {
 	AccessToken  string `json:"access_token"`
@@ -22,6 +22,7 @@ type TokenPair struct {
 
 // Custom claims for JWT
 type AuthClaims struct {
-	Email string `json:"email"`
+	Email  string `json:"email"`
+	UserId int    `json:"user_id"`
 	jwt.RegisteredClaims
 }

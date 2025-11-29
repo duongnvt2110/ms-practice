@@ -8,13 +8,18 @@ option go_package = "ms-practice/proto/gen";
 
 message Payment {
     int32 id = 1;
-    int32 user_id = 2;
-    int32 booking_id = 3;
-    int32 quantity = 4;
-    float prices = 5;
-    google.protobuf.Timestamp created_at = 7;
-    google.protobuf.Timestamp updated_at = 8;
-    repeated PaymentHistory payment_history = 9;
+    string idempotency_key = 2;
+    string payment_code = 3;
+    int32 user_id = 4;
+    int32 booking_id = 5;
+    string transaction_id = 6;
+    int32 amount = 7;
+    string status = 8;
+    string provider = 9;
+    google.protobuf.Timestamp paid_at = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
+    repeated PaymentHistory payment_histories = 13;
 }
 
 

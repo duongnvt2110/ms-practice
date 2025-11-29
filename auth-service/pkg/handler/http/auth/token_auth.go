@@ -1,10 +1,11 @@
 package auth
 
 import (
-	"net/http"
+	"errors"
 
 	"ms-practice/auth-service/pkg/handler/http/auth/dto"
 	"ms-practice/auth-service/pkg/models"
+	resp "ms-practice/pkg/http/echo"
 
 	"github.com/labstack/echo/v4"
 )
@@ -14,33 +15,35 @@ func (h *AuthHandler) Register(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := new(dto.RegisterRequestForm)
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
 	// Validate
 	if err := h.validate.Struct(req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
 	// Call Usecase
 	authProfileInfo := &models.AuthProfile{
 		Password: req.Password,
 		Email:    req.Email,
+		Username: req.Username,
 	}
 
 	userInfo := &models.User{
-		Birthday:    req.BirthDay,
-		FirstName:   req.FirstName,
-		LastName:    req.LastName,
-		PhoneNumber: req.PhoneNumber,
+		Email:        req.Email,
+		Birthday:     req.Birthday,
+		Username:     req.Username,
+		Avatar:       req.Avatar,
+		MobileNumber: req.MobileNumber,
 	}
 
 	err := h.authProfileUC.Register(ctx, authProfileInfo, userInfo)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, nil)
+	return resp.ResponseWithSuccess(c, nil)
 }
 
 // Login endpoint
@@ -48,21 +51,41 @@ func (h *AuthHandler) Login(c echo.Context) error {
 	ctx := c.Request().Context()
 	req := new(dto.LoginRequestForm)
 	if err := c.Bind(req); err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
 	// Validate
 	if err := h.validate.Struct(req); err != nil {
-		return c.JSON(http.StatusUnprocessableEntity, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
 	// Call Usecase
 	token, err := h.authProfileUC.Login(ctx, req.Email, req.Password)
 	if err != nil {
-		return c.JSON(http.StatusUnauthorized, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, token)
+	return resp.ResponseWithSuccess(c, token)
+}
+
+// RefreshToken endpoint
+func (h *AuthHandler) RefreshToken(c echo.Context) error {
+	ctx := c.Request().Context()
+	req := new(dto.RefreshTokenRequest)
+	if err := c.Bind(req); err != nil {
+		return resp.ResponseWithError(c, err)
+	}
+
+	if err := h.validate.Struct(req); err != nil {
+		return resp.ResponseWithError(c, err)
+	}
+
+	tokenPair, err := h.authProfileUC.RefreshToken(ctx, req.RefreshToken)
+	if err != nil {
+		return resp.ResponseWithError(c, err)
+	}
+
+	return resp.ResponseWithSuccess(c, tokenPair)
 }
 
 // Logout endpoint
@@ -70,14 +93,14 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	ctx := c.Request().Context()
 	token := c.Request().Header.Get("Authorization")
 	if token == "" {
-		return c.JSON(http.StatusBadRequest, "token required")
+		return resp.ResponseWithError(c, errors.New("token required"))
 	}
 
 	// Call Usecase
 	err := h.authProfileUC.Logout(ctx, token)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, err.Error())
+		return resp.ResponseWithError(c, err)
 	}
 
-	return c.JSON(http.StatusOK, "logout successful")
+	return resp.ResponseWithSuccess(c, "logout successful")
 }

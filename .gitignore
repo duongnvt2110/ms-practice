@@ -27,3 +27,13 @@ database/*
 # utils-service
 /utils-service/build/tmp
 /utils-service/build
+
+# event-service
+/event-service/build/tmp
+/event-service/build/db
+/event-service/build
+
+# event-service
+/ticket-service/build/tmp
+/ticket-service/build/db
+/ticket-service/build

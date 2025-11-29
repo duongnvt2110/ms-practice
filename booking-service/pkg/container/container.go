@@ -7,21 +7,20 @@ import (
 	"ms-practice/booking-service/pkg/usecase"
 	"ms-practice/booking-service/pkg/util/kafka"
 	"ms-practice/pkg/db/gorm_client"
-	sharedKafka "ms-practice/pkg/kafka"
 	"os"
 )
 
 type Container struct {
-	Cfg      *config.Config
-	Usecases *usecase.Usecase
+	Cfg       *config.Config
+	Usecases  *usecase.Usecase
+	Messaging *kafka.BookingMessaging
 }
 
 func InitializeContainer() *Container {
 	cfg := config.NewConfig()
-	kafkaClient := sharedKafka.NewKafkaClient(cfg.App.Kafka)
-	bookingMessaging := kafka.NewBookingKafkaClient(kafkaClient)
+	bookingMessaging := kafka.NewBookingKafkaClient(cfg.App.Kafka)
 
-	db, err := gorm_client.NewGormClient(cfg.App.Mysql.PrimaryHosts, cfg.App.Mysql.ReadHosts, cfg.App.Mysql.User, cfg.App.Mysql.Password, cfg.App.Mysql.Port, cfg.App.Mysql.DBName)
+	db, err := gorm_client.NewGormClient(cfg.App.Mysql)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -31,8 +30,9 @@ func InitializeContainer() *Container {
 	usecases := usecase.NewUsecase(repo, bookingMessaging)
 
 	return &Container{
-		Cfg:      cfg,
-		Usecases: usecases,
+		Cfg:       cfg,
+		Usecases:  usecases,
+		Messaging: bookingMessaging,
 	}
 }
 

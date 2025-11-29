@@ -9,6 +9,7 @@ import (
 
 type PaymentRepoInterface interface {
 	GetPayment(ctx context.Context, userID int32, paymentID int32) (*model.Payment, error)
+	CreatePayment(ctx context.Context, payment *model.Payment) error
 }
 
 type paymentRepo struct {
@@ -31,4 +32,8 @@ func (r *paymentRepo) GetPayment(ctx context.Context, userID int32, paymentID in
 		return nil, err
 	}
 	return &payment, nil
+}
+
+func (r *paymentRepo) CreatePayment(ctx context.Context, payment *model.Payment) error {
+	return r.db.WithContext(ctx).Create(payment).Error
 }

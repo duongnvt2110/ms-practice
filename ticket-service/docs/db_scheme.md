@@ -1,0 +1,11 @@
+- tickets
+  - id 
+  - user_id
+  - booking_id
+  - payment_id
+  - ticket_type_id
+  - code
+  - qr_url
+  - status
+  - created_at
+  - updated_at

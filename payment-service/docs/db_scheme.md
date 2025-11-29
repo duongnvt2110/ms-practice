@@ -1,0 +1,12 @@
+- payments
+  - id 
+  - payment_code
+  - user_id
+  - booking_id
+  - transaction_id (3rd)
+  - price
+  - status
+  - provider
+  - paid_at
+  - created_at
+  - updated_at

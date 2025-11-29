@@ -4,13 +4,17 @@ import (
 	"context"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"ms-practice/auth-service/pkg/config"
 	"ms-practice/auth-service/pkg/container"
 	"ms-practice/auth-service/pkg/handler/http/auth"
+	"ms-practice/auth-service/pkg/usecases"
+	apperror "ms-practice/auth-service/pkg/utils/app_error"
 
-	echojwt "github.com/labstack/echo-jwt/v4"
+	resp "ms-practice/pkg/http/echo"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
@@ -19,7 +23,7 @@ import (
 func StartHTTPServer(c *container.Container) {
 	e := echo.New()
 	setRoutes(e, c)
-	initialMiddleware(e)
+	initialMiddleware(e, c)
 	runHttpServer(e, c.Cfg)
 }
 
@@ -30,28 +34,44 @@ func setRoutes(e *echo.Echo, c *container.Container) {
 	// Auth Handler
 	authHandler := auth.NewAuthHandler(c.Cfg, c.Validate, c.Usecase)
 
+	// Inital Middlewares
+	authMD := authMiddleware(c.Usecase.AuthProfileUC)
+
 	// Token Routes
-	apiV1.POST("/register", authHandler.Register)
-	apiV1.POST("/login", authHandler.Login)
-	apiV1.POST("/logout", authHandler.Logout)
+	authRoutes := apiV1.Group("/auths")
+	authRoutes.POST("/register", authHandler.Register)
+	authRoutes.POST("/login", authHandler.Login)
+	authRoutes.POST("/refresh_token", authHandler.RefreshToken)
+	authRoutes.POST("/logout", authHandler.Logout, authMD)
 
 	// SSO Routes
-	gAuth := apiV1.Group("/auth/google")
+	gAuth := authRoutes.Group("/google")
 	gAuth.GET("/login", authHandler.OauthGoogleLogin)
 	gAuth.GET("/callback", authHandler.OauthGoogleCallback).Name = "oauth.callback"
 }
 
-func initialMiddleware(e *echo.Echo) {
+func initialMiddleware(e *echo.Echo, c *container.Container) {
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
 }
 
-func authMiddleware(e *echo.Echo) echo.MiddlewareFunc {
-	return echojwt.WithConfig(echojwt.Config{
-		// ...
-		SigningKey: []byte("secret"),
-		// ...
-	})
+func authMiddleware(authUC usecases.AuthProfileUC) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			// Get Token
+			auth := c.Request().Header.Get(echo.HeaderAuthorization)
+			token := strings.TrimPrefix(auth, "Bearer ")
+			token = strings.TrimSpace(token)
+
+			// Validate Token
+			err := authUC.ValidateToken(token)
+			if err != nil {
+				return resp.ResponseWithError(c, apperror.ErrUnauthorized)
+			}
+
+			return next(c)
+		}
+	}
 }
 
 func runHttpServer(e *echo.Echo, cfg *config.Config) {
