@@ -11,7 +11,7 @@ import (
 	"ms-practice/auth-service/pkg/container"
 	"ms-practice/auth-service/pkg/handler/http/auth"
 	"ms-practice/auth-service/pkg/usecases"
-	apperror "ms-practice/auth-service/pkg/utils/app_error"
+	apperror "ms-practice/auth-service/pkg/utils/errors"
 
 	resp "ms-practice/pkg/http/echo"
 

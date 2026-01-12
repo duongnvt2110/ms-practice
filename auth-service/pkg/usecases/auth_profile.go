@@ -73,7 +73,7 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 		return err
 	}
 	// Todo
-
+	// Implement verified
 	// Send email
 	return nil
 }
