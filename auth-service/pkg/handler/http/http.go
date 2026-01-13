@@ -11,7 +11,7 @@ import (
 	"ms-practice/auth-service/pkg/container"
 	"ms-practice/auth-service/pkg/handler/http/auth"
 	"ms-practice/auth-service/pkg/usecases"
-	apperror "ms-practice/auth-service/pkg/utils/errors"
+	autherror "ms-practice/auth-service/pkg/utils/errors"
 
 	resp "ms-practice/pkg/http/echo"
 
@@ -60,15 +60,14 @@ func authMiddleware(authUC usecases.AuthProfileUC) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			// Get Token
 			auth := c.Request().Header.Get(echo.HeaderAuthorization)
-			token := strings.TrimPrefix(auth, "Bearer ")
+			token := strings.TrimPrefix(auth, "Bearer")
 			token = strings.TrimSpace(token)
-
 			// Validate Token
-			err := authUC.ValidateToken(token)
+			authClaims, err := authUC.ValidateToken(token)
 			if err != nil {
-				return resp.ResponseWithError(c, apperror.ErrUnauthorized)
+				return resp.ResponseWithError(c, autherror.ErrInvalidToken)
 			}
-
+			c.Set("auth_profile_id", authClaims.AuthProfileID)
 			return next(c)
 		}
 	}

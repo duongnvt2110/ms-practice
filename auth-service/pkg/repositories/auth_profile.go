@@ -5,6 +5,8 @@ import (
 	"errors"
 
 	"ms-practice/auth-service/pkg/models"
+	autherror "ms-practice/auth-service/pkg/utils/errors"
+	apperror "ms-practice/pkg/errors"
 
 	"gorm.io/gorm"
 )
@@ -36,7 +38,10 @@ func (r *authProfileRepo) GetByEmail(ctx context.Context, email string) (*models
 	var user models.AuthProfile
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
 	if err != nil {
-		return nil, errors.New("user not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, autherror.ErrUserNotFound
+		}
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 	return &user, nil
 }

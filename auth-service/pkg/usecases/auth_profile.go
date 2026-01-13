@@ -8,7 +8,9 @@ import (
 	"ms-practice/auth-service/pkg/config"
 	"ms-practice/auth-service/pkg/models"
 	"ms-practice/auth-service/pkg/repositories"
+	autherror "ms-practice/auth-service/pkg/utils/errors"
 
+	apperror "ms-practice/pkg/errors"
 	sharejwt "ms-practice/pkg/jwt"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -19,8 +21,8 @@ type AuthProfileUC interface {
 	Register(ctx context.Context, authProfileInfo *models.AuthProfile, userInfo *models.User) error
 	Login(ctx context.Context, email, password string) (*models.TokenPair, error)
 	RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error)
-	Logout(ctx context.Context, token string) error
-	ValidateToken(tokenString string) error
+	Logout(ctx context.Context, authProfileID int, token string) error
+	ValidateToken(tokenString string) (*models.AuthClaims, error)
 }
 
 type authProfileUC struct {
@@ -45,21 +47,29 @@ func NewAuthProfileUC(authRepo repositories.AuthProfileRepo, rfRepo repositories
 // Register a new user
 func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.AuthProfile, userInfo *models.User) error {
 	// Check if user already exists
-	existingUser, _ := u.authRepo.GetByEmail(ctx, authProfileInfo.Email)
+	existingUser, err := u.authRepo.GetByEmail(ctx, authProfileInfo.Email)
+	if err != nil {
+		var appErr apperror.AppError
+		if errors.As(err, &appErr) && appErr.GetErrCode() == autherror.ErrUserNotFound.GetErrCode() {
+			err = nil
+		} else {
+			return apperror.ErrInternalServerError.Wrap(err)
+		}
+	}
 	if existingUser != nil {
-		return errors.New("user already exists")
+		return autherror.ErrUserAlreadyExists
 	}
 
 	// Hash password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(authProfileInfo.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	// Grpc call create user in user-service
 	userCreated, err := u.userGrpcClient.CreateUser(ctx, userInfo)
 	if err != nil {
-		return err
+		return apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	// Create auth_profile
@@ -68,9 +78,9 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 	if err != nil {
 		_, grpcError := u.userGrpcClient.DeleteUser(ctx, userCreated.GetId())
 		if grpcError != nil {
-			return grpcError
+			return apperror.ErrInternalServerError.Wrap(grpcError)
 		}
-		return err
+		return apperror.ErrInternalServerError.Wrap(err)
 	}
 	// Todo
 	// Implement verified
@@ -80,32 +90,39 @@ func (u *authProfileUC) Register(ctx context.Context, authProfileInfo *models.Au
 
 // Login user and return JWT token
 func (u *authProfileUC) Login(ctx context.Context, email, password string) (*models.TokenPair, error) {
-	user, err := u.authRepo.GetByEmail(ctx, email)
+	authProfile, err := u.authRepo.GetByEmail(ctx, email)
 	if err != nil {
-		return nil, errors.New("invalid email or password")
+		var appErr apperror.AppError
+		if errors.As(err, &appErr) {
+			if appErr.GetErrCode() == autherror.ErrUserNotFound.GetErrCode() {
+				return nil, autherror.ErrInvalidCredentials
+			}
+			return nil, appErr
+		}
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	// Compare hashed password
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(authProfile.Password), []byte(password))
 	if err != nil {
-		return nil, errors.New("invalid email or password")
+		return nil, autherror.ErrInvalidCredentials
 	}
 
 	// Generate JWT token
-	token, err := u.generateLoginToken(user.Email, user.Id)
+	token, err := u.generateLoginToken(authProfile.Email, authProfile.Id)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	// enhance expires_time
 	rf := &models.AuthRefreshToken{
-		AuthProfileId: user.Id,
+		AuthProfileId: authProfile.Id,
 		RefreshToken:  token.RefreshToken,
 		ExpiredAt:     time.Now().Add(time.Duration(u.cfg.JWT.RefreshTokenExp) * time.Minute),
 	}
 	err = u.rfRepo.Create(ctx, rf)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	return token, nil
@@ -113,37 +130,41 @@ func (u *authProfileUC) Login(ctx context.Context, email, password string) (*mod
 
 func (u *authProfileUC) RefreshToken(ctx context.Context, refreshToken string) (*models.TokenPair, error) {
 	if refreshToken == "" {
-		return nil, errors.New("refresh token is required")
+		return nil, autherror.ErrRefreshTokenRequired
 	}
 
 	record, err := u.rfRepo.GetByToken(ctx, refreshToken)
 	if err != nil {
-		return nil, errors.New("invalid refresh token")
+		var appErr apperror.AppError
+		if errors.As(err, &appErr) {
+			return nil, appErr
+		}
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	if time.Now().After(record.ExpiredAt) {
 		_ = u.rfRepo.Delete(ctx, record.AuthProfileId, refreshToken)
-		return nil, errors.New("refresh token expired")
+		return nil, autherror.ErrRefreshTokenExpired
 	}
 
 	claims := &models.AuthClaims{}
 	token, err := jwt.ParseWithClaims(refreshToken, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, autherror.ErrInvalidRefreshToken
 		}
 		return []byte(u.cfg.JWT.Secret), nil
 	})
 	if err != nil || !token.Valid {
-		return nil, errors.New("invalid refresh token")
+		return nil, autherror.ErrInvalidRefreshToken
 	}
 
-	newPair, err := u.generateLoginToken(claims.Email, claims.UserId)
+	newPair, err := u.generateLoginToken(claims.Email, claims.AuthProfileID)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	if err := u.rfRepo.Delete(ctx, record.AuthProfileId, refreshToken); err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	newRecord := &models.AuthRefreshToken{
@@ -152,54 +173,54 @@ func (u *authProfileUC) RefreshToken(ctx context.Context, refreshToken string) (
 		ExpiredAt:     time.Now().Add(time.Duration(u.cfg.JWT.RefreshTokenExp) * time.Minute),
 	}
 	if err := u.rfRepo.Create(ctx, newRecord); err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	return newPair, nil
 }
 
 // Logout user (invalidate token)
-func (u *authProfileUC) Logout(ctx context.Context, token string) error {
+func (u *authProfileUC) Logout(ctx context.Context, authProfileID int, token string) error {
 	// Here, you can implement token blacklisting if needed
-	return nil
+	return u.rfRepo.Delete(ctx, authProfileID, token)
 }
 
 // ValidateJWT parses a token and checks its expiration
-func (u *authProfileUC) ValidateToken(tokenString string) error {
+func (u *authProfileUC) ValidateToken(tokenString string) (*models.AuthClaims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &models.AuthClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("unexpected signing method")
+			return nil, autherror.ErrInvalidToken
 		}
 		return []byte(u.cfg.JWT.Secret), nil
 	})
 
 	if err != nil {
-		return err
+		return nil, autherror.ErrInvalidToken
 	}
 
 	// Extract claims
 	claims, ok := token.Claims.(*models.AuthClaims)
 	if !ok || !token.Valid {
-		return errors.New("invalid token")
+		return nil, autherror.ErrInvalidToken
 	}
 
 	// Check if the token is expired
 	if claims.ExpiresAt.Before(time.Now()) {
-		return errors.New("token expired")
+		return nil, autherror.ErrTokenExpired
 	}
 
-	return nil
+	return claims, nil
 }
 
 // Private function
-func (u *authProfileUC) generateLoginToken(email string, userID int) (*models.TokenPair, error) {
+func (u *authProfileUC) generateLoginToken(email string, authProfileID int) (*models.TokenPair, error) {
 	accessExpiry := time.Now().Add(time.Duration(u.cfg.JWT.AccessTokenExp) * time.Minute)
 	refreshExpiry := time.Now().Add(time.Duration(u.cfg.JWT.RefreshTokenExp) * time.Minute)
 
 	// Create access token
 	accessClaims := &models.AuthClaims{
-		Email:  email,
-		UserId: userID,
+		Email:         email,
+		AuthProfileID: authProfileID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(accessExpiry),
 		},
@@ -207,7 +228,7 @@ func (u *authProfileUC) generateLoginToken(email string, userID int) (*models.To
 
 	accessTokenString, err := sharejwt.JwtTokenEncode(u.cfg.JWT.Secret, accessClaims)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	// Create refresh token
@@ -220,7 +241,7 @@ func (u *authProfileUC) generateLoginToken(email string, userID int) (*models.To
 
 	refreshTokenString, err := sharejwt.JwtTokenEncode(u.cfg.JWT.Secret, refreshClaims)
 	if err != nil {
-		return nil, err
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 
 	return &models.TokenPair{

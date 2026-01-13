@@ -2,7 +2,11 @@ package repositories
 
 import (
 	"context"
+	"errors"
+
 	"ms-practice/auth-service/pkg/models"
+	autherror "ms-practice/auth-service/pkg/utils/errors"
+	apperror "ms-practice/pkg/errors"
 
 	"gorm.io/gorm"
 )
@@ -38,7 +42,10 @@ func (r *refreshTokenRepo) GetByToken(ctx context.Context, token string) (*model
 	if err := r.db.WithContext(ctx).
 		Where("refresh_token = ?", token).
 		First(&refreshToken).Error; err != nil {
-		return nil, err
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, autherror.ErrInvalidRefreshToken
+		}
+		return nil, apperror.ErrInternalServerError.Wrap(err)
 	}
 	return &refreshToken, nil
 }

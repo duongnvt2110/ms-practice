@@ -1,10 +1,9 @@
 package auth
 
 import (
-	"errors"
-
 	"ms-practice/auth-service/pkg/handler/http/auth/dto"
 	"ms-practice/auth-service/pkg/models"
+	autherror "ms-practice/auth-service/pkg/utils/errors"
 	resp "ms-practice/pkg/http/echo"
 
 	"github.com/labstack/echo/v4"
@@ -13,7 +12,7 @@ import (
 // Register endpoint
 func (h *AuthHandler) Register(c echo.Context) error {
 	ctx := c.Request().Context()
-	req := new(dto.RegisterRequestForm)
+	req := &dto.RegisterRequestForm{}
 	if err := c.Bind(req); err != nil {
 		return resp.ResponseWithError(c, err)
 	}
@@ -49,7 +48,7 @@ func (h *AuthHandler) Register(c echo.Context) error {
 // Login endpoint
 func (h *AuthHandler) Login(c echo.Context) error {
 	ctx := c.Request().Context()
-	req := new(dto.LoginRequestForm)
+	req := &dto.LoginRequestForm{}
 	if err := c.Bind(req); err != nil {
 		return resp.ResponseWithError(c, err)
 	}
@@ -71,7 +70,7 @@ func (h *AuthHandler) Login(c echo.Context) error {
 // RefreshToken endpoint
 func (h *AuthHandler) RefreshToken(c echo.Context) error {
 	ctx := c.Request().Context()
-	req := new(dto.RefreshTokenRequest)
+	req := &dto.RefreshTokenRequest{}
 	if err := c.Bind(req); err != nil {
 		return resp.ResponseWithError(c, err)
 	}
@@ -93,11 +92,12 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	ctx := c.Request().Context()
 	token := c.Request().Header.Get("Authorization")
 	if token == "" {
-		return resp.ResponseWithError(c, errors.New("token required"))
+		return resp.ResponseWithError(c, autherror.ErrTokenRequired)
 	}
+	authProfileID := c.Get("auth_profile_id").(int)
 
 	// Call Usecase
-	err := h.authProfileUC.Logout(ctx, token)
+	err := h.authProfileUC.Logout(ctx, authProfileID, token)
 	if err != nil {
 		return resp.ResponseWithError(c, err)
 	}

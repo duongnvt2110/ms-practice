@@ -1,10 +1,11 @@
 package echo
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 
-	apperror "ms-practice/auth-service/pkg/utils/app_error"
+	apperror "ms-practice/pkg/errors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -29,13 +30,13 @@ func ResponseWithSuccess(c echo.Context, data interface{}) error {
 }
 
 func ResponseWithError(c echo.Context, errApp error) error {
-	err, ok := errApp.(apperror.AppError)
-	if !ok {
-		err = apperror.ErrInternalServer.Wrap(err)
+	var err apperror.AppError
+	if !errors.As(errApp, &err) {
+		err = apperror.ErrInternalServerError.Wrap(errApp)
 	}
 
 	response := APIResponse{
-		Message: err.Error(),
+		Message: err.PublicMessage(),
 		Code:    err.GetErrCode(),
 		Status:  err.GetHttpCode(),
 	}
