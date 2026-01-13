@@ -25,7 +25,7 @@ type Google struct {
 
 type Mysql struct {
 	PrimaryHosts []string `envconfig:"MYSQL_PRIMARY_HOSTS" default:"localhost"`
-	ReplicaHots  []string `envconfig:"MYSQL_REPLICA_HOSTS" default:"localhost"`
+	ReplicaHosts []string `envconfig:"MYSQL_REPLICA_HOSTS"`
 	Port         string   `envconfig:"MYSQL_PORT" default:"3367"`
 	User         string   `envconfig:"MYSQL_USER" default:"admin"`
 	Password     string   `envconfig:"MYSQL_PASSWORD" default:"admin"`

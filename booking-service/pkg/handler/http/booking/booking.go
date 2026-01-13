@@ -64,12 +64,11 @@ func (h *bookingHandler) CreateBooking(c *gin.Context) {
 	}
 
 	booking := &model.Booking{
-		UserId:      req.UserID,
-		EventId:     req.EventID,
-		BookingCode: req.BookingCode,
-		Status:      req.Status,
-		TotalPrice:  req.TotalPrice,
-		Logs:        req.Logs,
+		UserId:     req.UserID,
+		EventId:    req.EventID,
+		Status:     req.Status,
+		TotalPrice: req.TotalPrice,
+		Logs:       req.Logs,
 	}
 
 	if headerKey := c.GetHeader("Idempotency-Key"); headerKey != "" {

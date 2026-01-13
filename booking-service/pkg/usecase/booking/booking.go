@@ -11,7 +11,6 @@ import (
 	"ms-practice/booking-service/pkg/repository/booking"
 	"ms-practice/booking-service/pkg/util/kafka"
 	"ms-practice/pkg/event"
-	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -43,6 +42,8 @@ func (u *bookingUsecase) CreateBooking(ctx context.Context, booking *model.Booki
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, err
 		}
+	} else {
+		return nil, errors.ErrUnsupported
 	}
 
 	setBookingDefaults(booking)
@@ -95,13 +96,6 @@ func (u *bookingUsecase) BookingCreated(ctx context.Context, booking *model.Book
 }
 
 func setBookingDefaults(booking *model.Booking) {
-	if booking.IdempotencyKey == "" {
-		booking.IdempotencyKey = randomHexString(32)
-	}
-
-	if booking.BookingCode == "" {
-		booking.BookingCode = fmt.Sprintf("BK-%s", strings.ToUpper(randomHexString(8)))
-	}
 
 	if booking.Status == "" {
 		booking.Status = model.BookingStatusPending

@@ -13,7 +13,8 @@ func main() {
 
 	ctx := context.Background()
 	go func() {
-		if err := consumer.NewPaymentConsumer(c.Messaging, c.Usecases.BookingUC).Start(ctx); err != nil && err != context.Canceled {
+		err := consumer.NewPaymentConsumer(c.BookingMessaging, c.Usecases.BookingUC).Start(ctx)
+		if err != nil && err != context.Canceled {
 			log.Fatalf("payment consumer stopped: %v", err)
 		}
 	}()

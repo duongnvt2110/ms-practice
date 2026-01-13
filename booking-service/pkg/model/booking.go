@@ -13,7 +13,6 @@ type Booking struct {
 	IdempotencyKey string        `gorm:"column:idempotency_key;uniqueIndex" json:"idempotency_key"`
 	UserId         int           `gorm:"column:user_id" json:"user_id"`
 	EventId        int           `gorm:"column:event_id" json:"event_id"`
-	BookingCode    string        `gorm:"column:booking_code" json:"booking_code"`
 	HoldedAt       time.Time     `gorm:"column:holded_at" json:"holded_at"`
 	ExpiredAt      *time.Time    `gorm:"column:expired_at" json:"expired_at,omitempty"`
 	Status         string        `gorm:"column:status" json:"status"`

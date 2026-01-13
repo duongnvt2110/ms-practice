@@ -11,9 +11,9 @@ import (
 )
 
 type Container struct {
-	Cfg       *config.Config
-	Usecases  *usecase.Usecase
-	Messaging *kafka.BookingMessaging
+	Cfg              *config.Config
+	Usecases         *usecase.Usecase
+	BookingMessaging *kafka.BookingMessaging
 }
 
 func InitializeContainer() *Container {
@@ -30,13 +30,13 @@ func InitializeContainer() *Container {
 	usecases := usecase.NewUsecase(repo, bookingMessaging)
 
 	return &Container{
-		Cfg:       cfg,
-		Usecases:  usecases,
-		Messaging: bookingMessaging,
+		Cfg:              cfg,
+		Usecases:         usecases,
+		BookingMessaging: bookingMessaging,
 	}
 }
 
-// Assumetion we have 1 milions requests -> create 1 milions connect to client if the send a message to a topic?
+// Assumption we have 1 milions requests -> create 1 milions connect to client if the send a message to a topic?
 // - The issue occur
 // Solution:
 // Singleton for create client

@@ -18,9 +18,9 @@ type PaymentConsumer struct {
 	bookingUC booking.BookingUsecase
 }
 
-func NewPaymentConsumer(messaging *bookingkafka.BookingMessaging, bookingUC booking.BookingUsecase) *PaymentConsumer {
+func NewPaymentConsumer(bookingMessaging *bookingkafka.BookingMessaging, bookingUC booking.BookingUsecase) *PaymentConsumer {
 	return &PaymentConsumer{
-		messaging: messaging,
+		messaging: bookingMessaging,
 		bookingUC: bookingUC,
 	}
 }
