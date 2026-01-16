@@ -195,6 +195,9 @@ func (u *authProfileUC) ValidateToken(tokenString string) (*models.AuthClaims, e
 	})
 
 	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, autherror.ErrTokenExpired
+		}
 		return nil, autherror.ErrInvalidToken
 	}
 
