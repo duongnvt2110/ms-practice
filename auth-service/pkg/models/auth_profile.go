@@ -23,6 +23,6 @@ type TokenPair struct {
 // Custom claims for JWT
 type AuthClaims struct {
 	Email         string `json:"email"`
-	AuthProfileID int    `json:"user_id"`
+	AuthProfileId int    `json:"auth_profile_id"`
 	jwt.RegisteredClaims
 }

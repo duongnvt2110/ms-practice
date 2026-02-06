@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"ms-practice/pkg/db/gorm_client"
 	"ms-practice/user-service/pkg/config"
-	"ms-practice/user-service/pkg/repositories"
-	"ms-practice/user-service/pkg/usecases"
+	"ms-practice/user-service/pkg/repository"
+	"ms-practice/user-service/pkg/usecase"
 	"os"
 )
 
 type Container struct {
 	Cfg     *config.Config
-	Usecase *usecases.Usecase
+	Usecase *usecase.Usecase
 }
 
 func InitializeContainer() *Container {
@@ -22,10 +22,10 @@ func InitializeContainer() *Container {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	repos := repositories.NewRepository(dbClient)
-	usecases := usecases.NewUsecase(repos, cfg)
+	repos := repository.NewRepository(dbClient)
+	usecase := usecase.NewUsecase(repos, cfg)
 	return &Container{
 		Cfg:     cfg,
-		Usecase: usecases,
+		Usecase: usecase,
 	}
 }

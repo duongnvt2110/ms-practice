@@ -2,7 +2,7 @@ package auth
 
 import (
 	"ms-practice/auth-service/pkg/config"
-	"ms-practice/auth-service/pkg/usecases"
+	"ms-practice/auth-service/pkg/usecase"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -10,10 +10,10 @@ import (
 type AuthHandler struct {
 	cfg           *config.Config
 	validate      *validator.Validate
-	authProfileUC usecases.AuthProfileUC
+	authProfileUC usecase.AuthProfileUC
 }
 
-func NewAuthHandler(cfg *config.Config, validate *validator.Validate, usecase *usecases.Usecase) AuthHandler {
+func NewAuthHandler(cfg *config.Config, validate *validator.Validate, usecase *usecase.Usecase) AuthHandler {
 	return AuthHandler{
 		cfg:           cfg,
 		authProfileUC: usecase.AuthProfileUC,

@@ -7,7 +7,6 @@ type App struct {
 	JWT
 	Mysql
 	*Kafka
-	GRPC
 }
 
 type JWT struct {
@@ -34,8 +33,4 @@ type Mysql struct {
 
 type Kafka struct {
 	Brokers []string `envconfig:"KAFKA_BROKERS" default:"host.docker.internal:29092"`
-}
-
-type GRPC struct {
-	Port string `envconfig:"GRPC_PORT" default:"50001"`
 }

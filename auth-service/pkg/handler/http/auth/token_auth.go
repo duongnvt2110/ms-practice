@@ -3,7 +3,7 @@ package auth
 import (
 	"ms-practice/auth-service/pkg/handler/http/auth/dto"
 	"ms-practice/auth-service/pkg/models"
-	autherror "ms-practice/auth-service/pkg/utils/errors"
+	"ms-practice/auth-service/pkg/utils/apperr"
 	resp "ms-practice/pkg/http/echo"
 
 	"github.com/labstack/echo/v4"
@@ -92,7 +92,7 @@ func (h *AuthHandler) Logout(c echo.Context) error {
 	ctx := c.Request().Context()
 	token := c.Request().Header.Get("Authorization")
 	if token == "" {
-		return resp.ResponseWithError(c, autherror.ErrTokenRequired)
+		return resp.ResponseWithError(c, apperr.ErrTokenRequired)
 	}
 	authProfileID := c.Get("auth_profile_id").(int)
 

@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package gen;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "ms-practice/proto/gen";
+
+message ValAuthReq {
+  string auth_token = 1;
+}
+
+message ValAuthResp {
+  int32 auth_profile_id = 1;
+}
+
+service AuthService {
+  rpc ValidateToken(ValAuthReq) returns (ValAuthResp);
+}

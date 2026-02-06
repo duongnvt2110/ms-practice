@@ -23,7 +23,7 @@ func InitializeContainer() *Container {
 	db, err := gorm_client.NewGormClient(cfg.App.Mysql)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+		// os.Exit(1)
 	}
 
 	repo := repository.NewRepository(db)

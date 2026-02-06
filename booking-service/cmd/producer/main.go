@@ -2,6 +2,7 @@ package main
 
 import (
 	"ms-practice/booking-service/pkg/config"
+	"ms-practice/booking-service/pkg/event"
 	"net"
 	"strconv"
 
@@ -15,10 +16,10 @@ func main() {
 
 func createTopic() {
 	// to create topics when auto.create.topics.enable='false'
-	topic := "booking.events"
+	topic := event.BookingTopicName
 
 	cfg := config.NewConfig()
-	conn, err := kafka.Dial("tcp", cfg.GRPC.UserHost)
+	conn, err := kafka.Dial("tcp", cfg.Kafka.Brokers[0])
 	if err != nil {
 		panic(err.Error())
 	}

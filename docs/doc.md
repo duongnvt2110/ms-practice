@@ -1,0 +1,8 @@
+- Go Worker Pool
+  - A pool of worker goroutines
+  - A Job queue (input channel) that holds tasks
+  - A Result queue (output channel) that collects processed results
+- Create of worker 
+  - Using loop to create the goroutine to start worker which is the number of worker based via the numWorkers. 
+    - Parameter is Job and Result 
+- 

@@ -17,9 +17,13 @@ var (
 
 type Config struct {
 	sharedCfg.App
-	GRPC struct {
-		UserServiceHost string `envconfig:"GRPC_USER_SERVICE_HOST" default:"user-service"`
-		UserServicePort string `envconfig:"GRPC_USER_SERVICE_PORT" default:"50001"`
+	GrpcUserSvc struct {
+		Host string `envconfig:"GRPC_USER_SVC_HOST" default:"user-service"`
+		Port string `envconfig:"GRPC_USER_SVC_PORT" default:"50001"`
+	}
+	GrpcAuthSvc struct {
+		Host string `envconfig:"GRPC_AUTH_SVC_HOST" default:"auth-service"`
+		Port string `envconfig:"GRPC_AUTH_SVC_PORT" default:"50002"`
 	}
 }
 

@@ -17,6 +17,14 @@ var (
 
 type Config struct {
 	sharedCfg.App
+	GrpcUserSvc struct {
+		Host string `envconfig:"GRPC_USER_SVC_HOST" default:"user-service"`
+		Port string `envconfig:"GRPC_USER_SVC_PORT" default:"50001"`
+	}
+	GrpcAuthSvc struct {
+		Host string `envconfig:"GRPC_AUTH_SVC_HOST" default:"auth-service"`
+		Port string `envconfig:"GRPC_AUTH_SVC_PORT" default:"50002"`
+	}
 }
 
 func NewConfig() *Config {
@@ -29,12 +37,12 @@ func NewConfig() *Config {
 func loadConfig() *Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error loading .env file %s", err)
+		log.Printf("Error loading .env file %s", err)
 	}
 	cfg = &Config{}
 	err = envconfig.Process("", cfg)
 	if err != nil {
-		log.Println("Error loading .env file %s", err)
+		log.Printf("Error loading .env file %s", err)
 	}
 	return cfg
 }

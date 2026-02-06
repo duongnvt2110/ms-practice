@@ -3,9 +3,8 @@ package echo
 import (
 	"errors"
 	"fmt"
+	"ms-practice/pkg/errorsx"
 	"net/http"
-
-	apperror "ms-practice/pkg/errors"
 
 	"github.com/labstack/echo/v4"
 )
@@ -30,9 +29,9 @@ func ResponseWithSuccess(c echo.Context, data interface{}) error {
 }
 
 func ResponseWithError(c echo.Context, errApp error) error {
-	var err apperror.AppError
+	var err errorsx.AppError
 	if !errors.As(errApp, &err) {
-		err = apperror.ErrInternalServerError.Wrap(errApp)
+		err = errorsx.ErrInternalServerError.Wrap(errApp)
 	}
 
 	response := APIResponse{

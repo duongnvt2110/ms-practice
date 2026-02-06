@@ -3,7 +3,7 @@ package mux
 import (
 	"encoding/json"
 	"fmt"
-	apperror "ms-practice/user-service/pkg/utils/app_error"
+	"ms-practice/pkg/errorsx"
 	"net/http"
 )
 
@@ -29,18 +29,23 @@ func ResponseWithSuccess(w http.ResponseWriter, data interface{}) {
 	json.NewEncoder(w).Encode(response)
 }
 
-func ResponseWithError(w http.ResponseWriter, errApp error) {
-	err, ok := errApp.(apperror.AppError)
-	if !ok {
-		err = apperror.ErrInternalServer.Wrap(err)
+func ResponseWithError(w http.ResponseWriter, err error) {
+	var e errorsx.AppError
+	if apperr, ok := err.(errorsx.AppError); ok {
+		e = apperr
+	} else if gerr, ok := errorsx.FromStatus(err); ok {
+		e = gerr.(errorsx.AppError)
+	} else {
+		e = errorsx.ErrInternalServerError.Wrap(err)
 	}
+
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(err.GetHttpCode())
+	w.WriteHeader(e.GetHttpCode())
 
 	response := APIResponse{
-		Message: err.Error(),
-		Code:    err.GetErrCode(),
-		Status:  err.GetHttpCode(),
+		Message: e.Error(),
+		Code:    e.GetErrCode(),
+		Status:  e.GetHttpCode(),
 	}
 
 	json.NewEncoder(w).Encode(response)

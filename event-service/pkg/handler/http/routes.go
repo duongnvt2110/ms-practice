@@ -7,7 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes(r *gin.Engine, c *container.Container) {
+func RegisterRoutes(r *gin.Engine, c *container.Container) {
 	eventHandler := event.NewHandler(c.Cfg, c.Usecases)
 	events := r.Group("/v1/events")
 	{

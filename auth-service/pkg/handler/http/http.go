@@ -10,8 +10,8 @@ import (
 	"ms-practice/auth-service/pkg/config"
 	"ms-practice/auth-service/pkg/container"
 	"ms-practice/auth-service/pkg/handler/http/auth"
-	"ms-practice/auth-service/pkg/usecases"
-	autherror "ms-practice/auth-service/pkg/utils/errors"
+	"ms-practice/auth-service/pkg/usecase"
+	"ms-practice/auth-service/pkg/utils/apperr"
 
 	resp "ms-practice/pkg/http/echo"
 
@@ -20,14 +20,14 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-func StartHTTPServer(c *container.Container) {
+func StartHTTPServer(ctx context.Context, c *container.Container) {
 	e := echo.New()
-	setRoutes(e, c)
-	initialMiddleware(e, c)
-	runHttpServer(e, c.Cfg)
+	registerRoutes(e, c)
+	registerMiddleware(e, c)
+	startHttpServer(e, c.Cfg)
 }
 
-func setRoutes(e *echo.Echo, c *container.Container) {
+func registerRoutes(e *echo.Echo, c *container.Container) {
 	// Version
 	apiV1 := e.Group("/v1")
 
@@ -50,12 +50,12 @@ func setRoutes(e *echo.Echo, c *container.Container) {
 	gAuth.GET("/callback", authHandler.OauthGoogleCallback).Name = "oauth.callback"
 }
 
-func initialMiddleware(e *echo.Echo, c *container.Container) {
+func registerMiddleware(e *echo.Echo, c *container.Container) {
 	e.Use(middleware.Logger())
 	// e.Use(middleware.Recover())
 }
 
-func authMiddleware(authUC usecases.AuthProfileUC) echo.MiddlewareFunc {
+func authMiddleware(authUC usecase.AuthProfileUC) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// Get Token
@@ -65,15 +65,15 @@ func authMiddleware(authUC usecases.AuthProfileUC) echo.MiddlewareFunc {
 			// Validate Token
 			authClaims, err := authUC.ValidateToken(token)
 			if err != nil {
-				return resp.ResponseWithError(c, autherror.ErrInvalidToken)
+				return resp.ResponseWithError(c, apperr.ErrInvalidToken)
 			}
-			c.Set("auth_profile_id", authClaims.AuthProfileID)
+			c.Set("auth_profile_id", authClaims.AuthProfileId)
 			return next(c)
 		}
 	}
 }
 
-func runHttpServer(e *echo.Echo, cfg *config.Config) {
+func startHttpServer(e *echo.Echo, cfg *config.Config) {
 	//Listen graceful shutdown
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
@@ -81,6 +81,7 @@ func runHttpServer(e *echo.Echo, cfg *config.Config) {
 	// Start http server
 	errCh := make(chan error)
 	go func() {
+		defer close(errCh)
 		errCh <- e.Start(":" + cfg.App.Port)
 	}()
 
@@ -94,8 +95,10 @@ func runHttpServer(e *echo.Echo, cfg *config.Config) {
 			log.Fatal("Server shutdown failed:", err)
 		}
 		log.Info("Server exited gracefully")
+		return
 	case err := <-errCh:
 		log.Info("Server shutdown by", err)
+		return
 	}
 
 }

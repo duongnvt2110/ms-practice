@@ -8,6 +8,7 @@ require (
 	github.com/go-playground/validator/v10 v10.27.0
 	github.com/golang-jwt/jwt/v4 v4.5.1
 	github.com/google/uuid v1.6.0
+	github.com/gorilla/context v1.1.2
 	github.com/gorilla/mux v1.8.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -16,6 +17,7 @@ require (
 	github.com/segmentio/kafka-go v0.4.49
 	golang.org/x/crypto v0.40.0
 	golang.org/x/oauth2 v0.27.0
+	golang.org/x/sync v0.16.0
 	google.golang.org/grpc v1.68.0
 	google.golang.org/protobuf v1.36.9
 	gorm.io/driver/mysql v1.5.7
@@ -59,7 +61,6 @@ require (
 	golang.org/x/arch v0.20.0 // indirect
 	golang.org/x/mod v0.25.0 // indirect
 	golang.org/x/net v0.42.0 // indirect
-	golang.org/x/sync v0.16.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
 	golang.org/x/text v0.27.0 // indirect
 	golang.org/x/time v0.8.0 // indirect

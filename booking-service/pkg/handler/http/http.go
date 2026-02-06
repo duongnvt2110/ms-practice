@@ -6,15 +6,12 @@ import (
 	"log"
 	"ms-practice/booking-service/pkg/container"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
-func StartHTTPServer(c *container.Container) {
+func StartHTTPServer(ctx context.Context, c *container.Container) {
 	h := gin.Default()
 	addr := resolveAddr(c)
 	srv := &http.Server{
@@ -24,34 +21,33 @@ func StartHTTPServer(c *container.Container) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      h,
 	}
-	SetRoutes(h, c.Cfg, c.Usecases)
+	RegisterRoutes(h, c.Cfg, c.Usecases)
 	// http_middleware.SetMiddleware(h)
+
+	errCh := make(chan error)
 	go func() {
+		defer close(errCh)
 		log.Printf("Server is running on http://%s", addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("http server failed: %v", err)
+			errCh <- err
 		}
 	}()
 
-	gracefullShutdown(srv)
-	log.Println("Server exiting")
+	select {
+	case <-ctx.Done():
+		gracefullShutdown(srv)
+		return
+	case err := <-errCh:
+		log.Printf("Server crash by %s:", err)
+		return
+	}
 }
 
 func gracefullShutdown(srv *http.Server) {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	log.Println("Shutdown Server ...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		log.Fatal("Server Shutdown:", err)
-	}
-	// catching ctx.Done(). timeout of 5 seconds.
-	select {
-	case <-ctx.Done():
-		log.Println("timeout of 5 seconds.")
+		log.Printf("Server shutdown failed %s:", err)
 	}
 	log.Println("Server exited gracefully")
 }

@@ -8,15 +8,14 @@ import (
 	"ms-practice/user-service/pkg/container"
 	"ms-practice/user-service/pkg/handler/grpc/server/user"
 	"net"
-	"os"
 	"time"
 
 	"google.golang.org/grpc"
 )
 
-func StartGRPCUserServiceServer(c *container.Container, ctx context.Context) {
+func StartGRPCUserServiceServer(ctx context.Context, c *container.Container) {
 	// Start gRPC server
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", c.Cfg.GRPC.Port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%s", c.Cfg.GrpcUserSvc.Port))
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -26,25 +25,26 @@ func StartGRPCUserServiceServer(c *container.Container, ctx context.Context) {
 	grpcServer := grpc.NewServer()
 	gen.RegisterUserServiceServer(grpcServer, userHandler)
 
-	logChannel := make(chan string)
+	errCh := make(chan error)
 
 	// Run gRPC in a separate goroutine
 	go func() {
-		logChannel <- fmt.Sprintf("UserService gRPC Server is running on port %s...", c.Cfg.GRPC.Port)
+		defer close(errCh)
+		log.Printf("UserService gRPC Server is running on port %s...", c.Cfg.GrpcUserSvc.Port)
 		if err := grpcServer.Serve(lis); err != nil {
-			logChannel <- fmt.Sprintf("Failed to serve: %v", err)
-			os.Exit(1)
+			errCh <- err
 		}
 	}()
 
-	go func() {
-		for msg := range logChannel {
-			fmt.Println(msg)
-		}
-		close(logChannel)
-	}()
-	<-ctx.Done()
-	gracefullShutdown(grpcServer)
+	select {
+	case <-ctx.Done():
+		// Gracefull shutdown
+		gracefullShutdown(grpcServer)
+		return
+	case err := <-errCh:
+		log.Printf("Server crash by %s:", err)
+		return
+	}
 }
 
 func gracefullShutdown(srv *grpc.Server) {

@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func StartHTTPServer(c *container.Container, ctx context.Context) {
+func StartHTTPServer(ctx context.Context, c *container.Container) {
 	h := mux.NewRouter()
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", c.Cfg.App.Port),
@@ -20,29 +20,29 @@ func StartHTTPServer(c *container.Container, ctx context.Context) {
 		IdleTimeout:  time.Second * 60,
 		Handler:      h,
 	}
-	// errs := make(chan error)
-	SetRoutes(h, c)
-	// http_middleware.SetMiddleware(h)
-	logChannel := make(chan string)
+
+	RegisterRoutes(h, c)
+	RegisterMiddleware(h, c.Usecase.AuthUC)
+
+	errCh := make(chan error)
 
 	go func() {
-		logChannel <- fmt.Sprintf("Server is running on http://%s:%s", c.Cfg.App.Host, c.Cfg.App.Port)
-		err := srv.ListenAndServe()
-		if err != nil {
-			logChannel <- err.Error()
+		defer close(errCh)
+		log.Printf("Server is running on http://%s:%s", c.Cfg.App.Host, c.Cfg.App.Port)
+		if err := srv.ListenAndServe(); err != nil {
+			errCh <- err
 		}
 	}()
 
-	go func() {
-		for msg := range logChannel {
-			fmt.Println(msg)
-		}
-		close(logChannel)
-	}()
-
-	// Gracefull shutdown
-	<-ctx.Done()
-	gracefullShutdown(srv)
+	select {
+	case <-ctx.Done():
+		// Gracefull shutdown
+		gracefullShutdown(srv)
+		return
+	case err := <-errCh:
+		log.Printf("Server crash by %s:", err)
+		return
+	}
 }
 
 func gracefullShutdown(srv *http.Server) {

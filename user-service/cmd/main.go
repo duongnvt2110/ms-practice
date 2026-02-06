@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"log"
 	"ms-practice/user-service/pkg/container"
 	grpc_handler "ms-practice/user-service/pkg/handler/grpc/server"
 	http_handler "ms-practice/user-service/pkg/handler/http"
 	"os"
 	"os/signal"
-	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -16,20 +18,22 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
 	defer stop()
-	var wg sync.WaitGroup
-	// Run HTTP Server
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		http_handler.StartHTTPServer(c, ctx)
-	}()
+	g, gCtx := errgroup.WithContext(ctx)
 
+	g.Go(func() error {
+		http_handler.StartHTTPServer(gCtx, c)
+		return nil
+	})
 	// Run GRPC Server
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		grpc_handler.StartGRPCUserServiceServer(c, ctx)
-	}()
-	<-ctx.Done()
-	wg.Wait()
+	g.Go(func() error {
+		grpc_handler.StartGRPCUserServiceServer(gCtx, c)
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		log.Printf("service stopped with error: %v", err)
+		return
+	}
+
+	log.Printf("service stopped gracefully")
 }
