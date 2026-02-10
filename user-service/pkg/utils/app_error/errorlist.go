@@ -4,4 +4,6 @@ var (
 	ErrInternalServer = NewAppError("500000", 500, "internal server error")
 	ErrBadRequest     = NewAppError("400000", 400, "bad request")
 	ErrNotFound       = NewAppError("404000", 404, "resource not found")
+
+	ErrUserUnauthorized = NewAppError("401000", 401, "user unauthorized")
 )

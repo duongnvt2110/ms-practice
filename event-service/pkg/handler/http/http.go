@@ -3,6 +3,7 @@ package http_handler
 import (
 	"context"
 	"fmt"
+	"log"
 	"ms-practice/event-service/pkg/container"
 	"net/http"
 	"time"
@@ -12,7 +13,8 @@ import (
 
 func StartHTTPServer(c *container.Container, ctx context.Context) {
 	engine := gin.Default()
-	SetRoutes(engine, c)
+
+	RegisterRoutes(engine, c)
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%s", c.Cfg.App.Port),
@@ -22,14 +24,32 @@ func StartHTTPServer(c *container.Container, ctx context.Context) {
 		IdleTimeout:  60 * time.Second,
 	}
 
+	errCh := make(chan error)
+
 	go func() {
+		defer close(errCh)
+		log.Printf("Server is running on http://%s:%s", c.Cfg.App.Host, c.Cfg.App.Port)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			panic(err)
+			errCh <- err
 		}
 	}()
 
-	<-ctx.Done()
+	select {
+	case <-ctx.Done():
+		gracefullShutdown(srv)
+		return
+	case err := <-errCh:
+		log.Printf("Server crash by %s:", err)
+		return
+	}
+}
+
+func gracefullShutdown(srv *http.Server) {
 	shutdownContext, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	_ = srv.Shutdown(shutdownContext)
+	err := srv.Shutdown(shutdownContext)
+	if err != nil {
+		log.Printf("Server shutdown failed %s:", err)
+	}
+	log.Println("Server exited gracefully")
 }

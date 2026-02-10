@@ -23,6 +23,8 @@ RUN go mod download
 
 COPY . ./
 
+EXPOSE 3000
+
 # Set working directory to build
 WORKDIR /app/auth-service
 

@@ -19,6 +19,7 @@ func NewGormClient(mysqlCfg config.Mysql) (*gorm.DB, error) {
 	// Load database config from environment variables
 	// Build DSNs for primaries and replicas
 	var primaryDialectors []gorm.Dialector
+	fmt.Println(mysqlCfg)
 	for _, host := range mysqlCfg.PrimaryHosts {
 		if host != "" {
 			primaryDialectors = append(primaryDialectors, mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
@@ -27,7 +28,7 @@ func NewGormClient(mysqlCfg config.Mysql) (*gorm.DB, error) {
 	}
 
 	var readDialectors []gorm.Dialector
-	for _, host := range mysqlCfg.ReplicaHots {
+	for _, host := range mysqlCfg.ReplicaHosts {
 		if host != "" {
 			readDialectors = append(readDialectors, mysql.Open(fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 				mysqlCfg.User, mysqlCfg.Password, host, mysqlCfg.Port, mysqlCfg.DBName)))

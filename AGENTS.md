@@ -17,3 +17,7 @@ Existing commits use short, imperative subjects (“update payment service”, �
 
 ## Proto & Messaging Notes
 Whenever protobufs change, regenerate code before opening a PR and mention the affected services. Keep Kafka topic definitions synchronized with those in `README.md`, and document any new event type in both the README saga section and the service README under `docs/`.
+
+
+# Codex Guildlines 
+- Do not implement any things before I approve

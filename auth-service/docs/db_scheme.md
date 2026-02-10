@@ -10,5 +10,5 @@
   - auth_profile_id
   - token
   - expired_at
-  - creatd_at
+  - created_at
   - updated_at

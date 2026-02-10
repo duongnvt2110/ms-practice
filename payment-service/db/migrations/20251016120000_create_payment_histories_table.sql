@@ -1,5 +1,4 @@
--- +goose Up
--- +goose StatementBegin
+-- migrate:up
 CREATE TABLE
   payment_histories (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -11,8 +10,5 @@ CREATE TABLE
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
 
--- +goose StatementEnd
--- +goose Down
--- +goose StatementBegin
+-- migrate:down
 DROP TABLE IF EXISTS payment_histories;
--- +goose StatementEnd

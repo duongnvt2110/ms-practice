@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"ms-practice/proto/gen"
-	"ms-practice/user-service/pkg/models"
-	"ms-practice/user-service/pkg/usecases"
+	"ms-practice/user-service/pkg/model"
+	"ms-practice/user-service/pkg/usecase"
 	"time"
 
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -13,10 +13,10 @@ import (
 
 type UserHandler struct {
 	gen.UnimplementedUserServiceServer
-	usecase usecases.UserUsecase
+	usecase usecase.UserUC
 }
 
-func NewUserHandler(uc usecases.UserUsecase) *UserHandler {
+func NewUserHandler(uc usecase.UserUC) *UserHandler {
 	return &UserHandler{usecase: uc}
 }
 
@@ -39,7 +39,7 @@ func (h *UserHandler) GetUser(ctx context.Context, req *gen.GetUserRequest) (*ge
 }
 
 func (h *UserHandler) CreateUser(ctx context.Context, req *gen.CreateUserRequest) (*gen.CreateUserResponse, error) {
-	user := &models.User{
+	user := &model.User{
 		Email:        req.Email,
 		Username:     req.Username,
 		Avatar:       req.Avatar,

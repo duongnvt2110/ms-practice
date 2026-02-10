@@ -3,6 +3,7 @@ package consumer
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 
 	paymentusecase "ms-practice/payment-service/pkg/usecase/payment"
@@ -29,12 +30,13 @@ func (p *PaymentConsumer) Start(ctx context.Context) error {
 	return consumer.Consume(ctx, p.handle)
 }
 
-func (p *PaymentConsumer) handle(k kafka.Message) {
+func (p *PaymentConsumer) handle(k kafka.Message) error {
 	var evt event.BookingPayload
 	if err := json.Unmarshal(k.Value, &evt); err != nil {
 		log.Printf("failed to unmarshal booking event: %v", err)
-		return
+		return err
 	}
+	return errors.ErrUnsupported
 
 	ctx := context.Background()
 	payment, err := p.paymentUC.ProcessPayment(ctx, evt)
@@ -53,13 +55,15 @@ func (p *PaymentConsumer) handle(k kafka.Message) {
 	b, marshalErr := json.Marshal(payload)
 	if marshalErr != nil {
 		log.Printf("failed to marshal payment payload: %v", marshalErr)
-		return
+		return marshalErr
 	}
 	producer, ok := p.message.Producers[event.PaymentTopicName]
 	if !ok || producer == nil {
-		return
+		return errors.New("Kafka Unavaiable")
 	}
 	if publishErr := producer.Publish(ctx, nil, b); publishErr != nil {
 		log.Printf("failed to publish payment event: %v", publishErr)
+		return publishErr
 	}
+	return err
 }

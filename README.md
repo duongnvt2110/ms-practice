@@ -165,6 +165,13 @@ protoc --go_out=./proto/gen --go_opt=paths=source_relative \
     --proto_path=proto \
     ./proto/payment.proto
 ```
+#### 3. auth-service 
+```
+protoc --go_out=./proto/gen --go_opt=paths=source_relative \
+    --go-grpc_out=./proto/gen --go-grpc_opt=paths=source_relative \
+    --proto_path=proto \
+    ./proto/auth.proto
+```
 ## Testing 
 #### GRPC
 https://ghz.sh/ 

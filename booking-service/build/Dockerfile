@@ -10,6 +10,7 @@ RUN set -x && apk update && \
 
 # Hot Reload
 RUN go install github.com/air-verse/air@v1.52.3  
+RUN go install github.com/pressly/goose/v3/cmd/goose@v3.17.0
 
 COPY go.* ./
 RUN go mod download

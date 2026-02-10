@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SetRoutes(r *gin.Engine, cfg *config.Config, usecases *usecase.Usecase) {
+func RegisterRoutes(r *gin.Engine, cfg *config.Config, usecases *usecase.Usecase) {
 	bookingHandler := booking.NewBookingHandler(cfg, usecases.BookingUC)
 	bookingGroup := r.Group("/v1/bookings")
 	{

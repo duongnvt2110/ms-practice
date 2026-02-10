@@ -20,6 +20,10 @@ type Config struct {
 	Kafka struct {
 		Brokers []string `envconfig:"KAFKA_BROKERS" default:"localhost:9092"`
 	}
+	GrpcPaymentSvc struct {
+		Host string `envconfig:"GRPC_PAYMENT_SVC_HOST" default:"payment-service"`
+		Port string `envconfig:"GRPC_PAYMENT_SVC_PORT" default:"50003"`
+	}
 }
 
 func NewConfig() *Config {

@@ -11,7 +11,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func SetRoutes(r *mux.Router, c *container.Container) {
+func RegisterRoutes(r *mux.Router, c *container.Container) {
 	userHandler := user.NewUserHandler(c.Cfg, *c.Usecase)
 	userRoutes := r.PathPrefix("/v1/users").Subrouter()
 	userRoutes.HandleFunc("/me", userHandler.GetMe).Methods("GET")

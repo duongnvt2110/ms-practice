@@ -2,15 +2,15 @@ package user
 
 import (
 	"ms-practice/user-service/pkg/config"
-	"ms-practice/user-service/pkg/usecases"
+	"ms-practice/user-service/pkg/usecase"
 )
 
 type userHandler struct {
 	cfg    *config.Config
-	userUC usecases.UserUsecase
+	userUC usecase.UserUC
 }
 
-func NewUserHandler(cfg *config.Config, uc usecases.Usecase) userHandler {
+func NewUserHandler(cfg *config.Config, uc usecase.Usecase) userHandler {
 	return userHandler{
 		cfg:    cfg,
 		userUC: uc.UserUC,

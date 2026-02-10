@@ -5,8 +5,8 @@ import (
 	"os"
 
 	"ms-practice/auth-service/pkg/config"
-	"ms-practice/auth-service/pkg/repositories"
-	"ms-practice/auth-service/pkg/usecases"
+	"ms-practice/auth-service/pkg/repository"
+	"ms-practice/auth-service/pkg/usecase"
 
 	"ms-practice/pkg/db/gorm_client"
 	svalidate "ms-practice/pkg/validator"
@@ -16,7 +16,7 @@ import (
 
 type Container struct {
 	Cfg      *config.Config
-	Usecase  *usecases.Usecase
+	Usecase  *usecase.Usecase
 	Validate *validator.Validate
 }
 
@@ -29,8 +29,8 @@ func InitializeContainer() *Container {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	repo := repositories.NewRepository(dbClient)
-	usecase := usecases.NewUsecase(repo, cfg)
+	repo := repository.NewRepository(dbClient)
+	usecase := usecase.NewUsecase(repo, cfg)
 
 	return &Container{
 		Cfg:      cfg,

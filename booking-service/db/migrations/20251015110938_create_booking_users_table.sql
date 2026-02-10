@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 CREATE TABLE
   booking_users (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -9,8 +11,9 @@ CREATE TABLE
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
   );
-
 -- +goose StatementEnd
-DROP TABLE IF EXISTS booking_users;
 
+-- +goose Down
+-- +goose StatementBegin
+DROP TABLE IF EXISTS booking_users;
 -- +goose StatementEnd
