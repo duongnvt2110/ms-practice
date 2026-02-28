@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DLQ Record {{ .Record.ID }}</title>
+    <style>
+      body { font-family: Arial, sans-serif; background: #f6f7fb; color: #1b1f23; margin: 0; }
+      header { background: #111827; color: #fff; padding: 16px 24px; }
+      main { padding: 24px; }
+      .card { background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+      .label { font-weight: 600; color: #374151; }
+      pre { background: #0f172a; color: #e2e8f0; padding: 12px; overflow: auto; border-radius: 8px; }
+      a { color: #2563eb; text-decoration: none; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>DLQ Record #{{ .Record.ID }}</h1>
+    </header>
+    <main>
+      <div class="card">
+        <div><span class="label">Topic:</span> {{ .Record.Topic }}</div>
+        <div><span class="label">Partition:</span> {{ .Record.Partition }}</div>
+        <div><span class="label">Offset:</span> {{ .Record.Offset }}</div>
+        <div><span class="label">Key:</span> {{ printf "%x" .Record.Key }}</div>
+        <div><span class="label">Created:</span> {{ .Record.CreatedAt }}</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Headers (JSON)</div>
+        <pre>{{ .HeadersJSON }}</pre>
+      </div>
+
+      <div class="card">
+        <div class="label">Payload Preview</div>
+        {{ if .Record.PayloadJSON }}
+          <pre>{{ .Record.PayloadJSON }}</pre>
+        {{ else }}
+          <pre>{{ .PayloadText }}</pre>
+        {{ end }}
+      </div>
+
+      <div class="card">
+        <div class="label">Payload (Base64)</div>
+        <pre>{{ .PayloadBase64 }}</pre>
+      </div>
+
+      <a href="/admin/dlq">Back to list</a>
+    </main>
+  </body>
+</html>

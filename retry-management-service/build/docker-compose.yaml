@@ -1,0 +1,28 @@
+name: ms-practie
+services:
+  retry-management-service:
+    build:
+      context: ../../
+      dockerfile: retry-management-service/build/Dockerfile
+    ports:
+      - "8008:3000"
+    env_file:
+      - .local.env
+    volumes:
+      - ../../:/app
+    depends_on:
+      - retry-management-service-db
+
+  retry-management-service-db:
+    image: mysql:8.0
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_DATABASE: retry_management_service
+    ports:
+      - "3372:3306"
+    volumes:
+      - ./db:/var/lib/mysql

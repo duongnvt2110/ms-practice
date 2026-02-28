@@ -2,7 +2,10 @@ package kafka
 
 import (
 	"context"
+	"errors"
 	"log"
+	"ms-practice/booking-service/pkg/event"
+	"ms-practice/pkg/backoff"
 	"ms-practice/pkg/config"
 
 	"github.com/davecgh/go-spew/spew"
@@ -61,7 +64,7 @@ func (k *kafkaClient) Publish(ctx context.Context, key, value []byte) error {
 }
 
 func (k *kafkaClient) Consume(ctx context.Context, handler func(kafka.Message) error) error {
-	k.starWorkerPool(handler)
+	k.starWorkerPool(ctx, handler)
 	defer close(jobs)
 	for {
 		msg, err := k.Reader.ReadMessage(ctx)
@@ -73,36 +76,44 @@ func (k *kafkaClient) Consume(ctx context.Context, handler func(kafka.Message) e
 			spew.Dump(err)
 			select {
 			case jobs <- msg:
-			default:
-				log.Print("Move to DLQ")
+			case <-ctx.Done():
+				return ctx.Err()
 			}
 		}
-
 	}
 }
 
-func (k *kafkaClient) worker(workerID int, handler func(kafka.Message) error) {
+func (k *kafkaClient) worker(ctx context.Context, workerID int, handler func(kafka.Message) error) {
+	b := backoff.NewBackoff(MaxRetries)
+	// Define what errors are retryable (customize this).
+	isRetryable := func(err error) bool {
+		// Example: retry everything for now.
+		// Skip Retry
+		// In production, exclude poison pill / validation errors.
+		if errors.Is(err, context.Canceled) ||
+			errors.Is(err, context.DeadlineExceeded) {
+			return false
+		}
+
+		return true
+	}
 	for retryMsg := range jobs {
-		retries := 1
-		for {
-			log.Printf("Worker %d Retry %v message %v\n", workerID, retries, string(retryMsg.Value))
-			if retries >= MaxRetries {
-				// Move to DLQ
-				log.Printf("Move to DLQ\n")
-				break
-			}
-			if err := handler(retryMsg); err != nil {
-				log.Printf("Error processing message, retrying: %v\n", err)
-				retries++
-				continue
-			}
-			break
+		err := b.Retry(ctx, b, isRetryable, func() error {
+			log.Printf("Worker %d: handling message %s\n", workerID, string(retryMsg.Value))
+			return handler(retryMsg)
+		})
+		if err != nil {
+			// Retries exhausted OR non-retryable error
+			log.Printf("Worker %d: Move to DLQ message %s (err: %v)\n",
+				workerID, string(retryMsg.Value), err)
+			k.SetWriterTopic(event.DLQTopicName)
+			k.Publish(ctx, nil, retryMsg.Value)
 		}
 	}
 }
 
-func (k *kafkaClient) starWorkerPool(handler func(kafka.Message) error) {
+func (k *kafkaClient) starWorkerPool(ctx context.Context, handler func(kafka.Message) error) {
 	for i := 0; i < NumberOfWorkers; i++ {
-		go k.worker(i, handler)
+		go k.worker(ctx, i, handler)
 	}
 }

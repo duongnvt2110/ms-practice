@@ -18,6 +18,7 @@ COMPOSE_booking-service := booking-service/build/docker-compose.yaml
 COMPOSE_payment-service := payment-service/build/docker-compose.yaml
 COMPOSE_event-service := event-service/build/docker-compose.yaml
 COMPOSE_ticket-service := ticket-service/build/docker-compose.yaml
+COMPOSE_retry-management-service := retry-management-service/build/docker-compose.yaml
 COMPOSE_utils-service := utils-service/docker-compose.yaml
 
 COMPOSE_VARS := $(filter COMPOSE_%,$(.VARIABLES))
